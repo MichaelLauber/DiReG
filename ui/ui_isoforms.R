@@ -1,0 +1,1 @@
+plotlyOutput("isoforms_plot")
