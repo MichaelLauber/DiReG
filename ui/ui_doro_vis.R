@@ -19,7 +19,7 @@ fluidRow(
   column(12, div(
     conditionalPanel(
       condition = 'window.cond_visnet == "1"',
-      div(h3("Explore a set of Transcription factors"),
+      div(h2("Explore a set of Transcription factors"),
           
           p(HTML("<strong>OR Analysis:</strong> Performs Overrepresentation Analysis based on the input TFs and their targets.")),
           p(HTML("<strong>GSEA:</strong> Performs Geneset Enrichment Analysis based on the input TFs and their targets. 

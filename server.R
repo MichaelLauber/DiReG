@@ -19,15 +19,16 @@ function(input, output, session) {
    })
   
   
-  ####### mining   
-  #example btns
+  ####### mining  
+   
+  #loads example TFs in the input field within Signature mining
   observeEvent(input$btnMiningExample, {
     value <- "HNF1A HNF4A ONECUT1 ATF5 PROX1 CEBPA"
     updateTextInput(session, "inputTextTFs", value=value)
   })
   
   
-   
+  #All  performed analysis are hidden
   hideAll <- function(){
     cond_ora(0)
     cond_gsea(0)
@@ -36,6 +37,7 @@ function(input, output, session) {
     cond_tfa(0)
   }
   
+  # Latest clicked buttons of signature mining approaches appears differently colored
   resetBtns <- function(){
     shinyjs::runjs('document.getElementById("btnORA").classList.remove("bttn-success")')
     shinyjs::runjs('document.getElementById("btnORA").classList.add("bttn-primary")')
@@ -53,10 +55,8 @@ function(input, output, session) {
     shinyjs::runjs('document.getElementById("btnTFA").classList.add("bttn-primary")')
   }
   
-  #highLightBtn-function(id){}
-   
   
-  #ora
+  #OR analysis 
   cond_ora <- reactiveVal(0)
   
   observeEvent(input$btnORA,{
@@ -70,49 +70,6 @@ function(input, output, session) {
     cond_ora(1)
     shinyjs::runjs('document.getElementById("btnORA").classList.remove("bttn-primary")')
     shinyjs::runjs('document.getElementById("btnORA").classList.add("bttn-success")')
-    
-    
-    # print("ORA")
-    # print(inputTFs())
-    # print(is.null(inputTFs()))
-    # 
-    # waiter <- waiter::Waiter$new()
-    # waiter$show()
-    # on.exit(waiter$hide())
-    # 
-    # notification <- showNotification(glue::glue("Overrepresentation Analysis running. This can take a few seconds."), type = "message", duration = NULL, closeButton = TRUE)
-    # on.exit(removeNotification(notification), add = TRUE)
-    # 
-    # if(input$radioOrgDorothea == "human"){
-    #   organism <- "hsapiens"
-    # } else {
-    #   organism <- 'mmusculus'
-    # }
-    # 
-    # enrichData <<-
-    #   gprofiler2::gost(query = nodes()$id,
-    #                    organism = organism, ordered_query = FALSE,
-    #                    multi_query = FALSE, significant = TRUE, exclude_iea = FALSE,
-    #                    measure_underrepresentation = FALSE, evcodes = FALSE,
-    #                    user_threshold = 0.05, correction_method = "g_SCS",
-    #                    domain_scope = "annotated", custom_bg = NULL,
-    #                    numeric_ns = "", sources = c("GO:MF", "GO:CC", "GO:BP", "KEGG","REAC"), as_short_link = FALSE)
-    # 
-    # 
-    # 
-    # output$enrichPlot <- renderPlotly({
-    #   gprofiler2::gostplot(enrichData, capped = TRUE, interactive = TRUE)
-    # })
-    # 
-    # output$tbl_enrich <- renderDT(
-    #   #data.table::as.data.table(enrichData$result[,c(11,3:6,9, 10)]),
-    #   #DT::datatable(enrichData$result[,c(11,3:6,9, 10)]) #%>%
-    #   enrichData$result[,c(11,3:6,9, 10)] #%>%
-    #   #formatSignif(columns = c('p_value'), digits = 3),
-    #   #mutate(p_value = round(p_value, 5))
-    #   ,
-    #   options = list(pageLength = 5)
-    # )
     
   })
   output$cond_ora = renderText({cond_ora()})
@@ -148,24 +105,7 @@ function(input, output, session) {
     cond_gtex(1)
   })
   output$cond_gtex = renderText({cond_gtex()})
-  
-  
-  ###
-  
 
-  
-  
-  
-  observeEvent(input$ok, {
-    cond_tfa(1)
-  })
-  
-
-
-  
-  
-  ###
-  
   
   #isoform
   cond_isoforms <- reactiveVal(0)
@@ -183,9 +123,7 @@ function(input, output, session) {
   })
   output$cond_isoforms = renderText({cond_isoforms()})
   
-  
- 
-  
+
   #tfa
   cond_tfa <- reactiveVal(0)
   observeEvent(input$btnTFA,{
@@ -199,12 +137,13 @@ function(input, output, session) {
     shinyjs::runjs('document.getElementById("btnTFA").classList.remove("bttn-primary")')
     shinyjs::runjs('document.getElementById("btnTFA").classList.add("bttn-success")')
     
-    
-    
     #cond_tfa(1)
   })
   output$cond_tfa = renderText({cond_tfa()})
   
+  observeEvent(input$ok, {
+    cond_tfa(1)
+  })
   
   
   outputOptions(output, 'cond_ora', suspendWhenHidden=FALSE)
@@ -215,10 +154,11 @@ function(input, output, session) {
   
   #### End Mining
   
+  
   ##Explore
   
   reprogramming_protocols <-
-    read.csv(file.path("data","reprogramming_protocols.csv"))
+     read.csv(file.path("data","reprogramming_protocols.csv"))
   
   cond_exploreExp <- reactiveVal(1)
   cond_exploreComp <- reactiveVal(0)
@@ -229,7 +169,7 @@ function(input, output, session) {
   outputOptions(output, 'cond_exploreExp', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_exploreComp', suspendWhenHidden=FALSE)
   
-  
+     
   observeEvent(input$radioExploreTyp, 
                if(input$radioExploreTyp == "Experimental"){
                  cond_exploreExp(1)
@@ -239,15 +179,84 @@ function(input, output, session) {
                  cond_exploreComp(1)
                }
                
-               )
-  
-  #observeEvent(input$radioExploreTyp, print(input$radioExploreTyp))
-  
+               ) 
+      
+ 
+   
    
   source("server/server_explore.R", local=T)
-  source("server/server_pred_tools.R", local=T)
-  source("server/server_pred_ame.R", local=T)     
-  source("server/server_test.R", local=T)     
+  source("server/server_mining.R", local=T)
+  source("server/server_discovery.R", local=T)     
+  source("server/server_doc.R", local=T)
+   
+  
+  # Documentation
+  
+  # activeButton <- reactiveVal(NULL)
+  # 
+  # # When actnBtnSignature is clicked, show the tabsetPanel
+  # observeEvent(input$actnBtnSignature, {
+  #   activeButton("actnBtnSignature")
+  #   output$tabsetOutput <- renderUI({
+  #     tabsetPanel(
+  #       tabPanel("OR Analysis", source("doc/doc_ORA.R", local=T)),
+  #       tabPanel("GSEA", source("doc/doc_GSEA.R", local=T)),
+  #       tabPanel("GTex Tissue Expression", source("doc/doc_GTEx.R", local=T)),
+  #       tabPanel("Isoform Potential", source("doc/doc_isoform.R", local=T)),
+  #       tabPanel("TFA Analysis", source("doc/doc_TFA.R", local=T))
+  #     )
+  #   })
+  # })
+  #  
+  # # When actnBtnExplore is clicked, update uiOutput with different text
+  # observeEvent(input$actnBtnExplore, {
+  #   activeButton("actnBtnExplore")
+  #   output$sectionContent <- renderUI({
+  #     source("doc/doc_explore.R", local=T)
+  #   })
+  #   output$tabsetOutput <- NULL
+  # })
+  #  
+  # # When actnBtnDiscovery is clicked, update uiOutput with different text
+  # observeEvent(input$actnBtnDiscovery, {
+  #   activeButton("actnBtnDiscovery")
+  #   output$sectionContent <- renderUI({
+  #     source("doc/doc_discovery.R", local=T)
+  #     # You can replace this with the content you want to display
+  #   })
+  #   output$tabsetOutput <- NULL
+  # })
+  
+  
+  # mock_data <- data.frame(
+  #   Donor_Cell = c("Cell Type A", "Cell Type B", "Cell Type C", "Cell Type D", "Cell Type E",
+  #                  "Cell Type F", "Cell Type G", "Cell Type H", "Cell Type I", "Cell Type J",
+  #                  "Cell Type A", "Cell Type B", "Cell Type C", "Cell Type D", "Cell Type E",
+  #                  "Cell Type F", "Cell Type G", "Cell Type H", "Cell Type I", "Cell Type J"),
+  #   Target_Cell = c("Cell Type X", "Cell Type Y", "Cell Type Z", "Cell Type W", "Cell Type V",
+  #                   "Cell Type U", "Cell Type T", "Cell Type S", "Cell Type R", "Cell Type Q",
+  #                   "Cell Type X", "Cell Type Y", "Cell Type Z", "Cell Type W", "Cell Type V",
+  #                   "Cell Type U", "Cell Type T", "Cell Type S", "Cell Type R", "Cell Type Q"),
+  #   Title = c("Study 1", "Study 2", "Study 3", "Study 4", "Study 5",
+  #             "Study 6", "Study 7", "Study 8", "Study 9", "Study 10",
+  #             "Study 11", "Study 12", "Study 13", "Study 14", "Study 15",
+  #             "Study 16", "Study 17", "Study 18", "Study 19", "Study 20"),
+  #   Journal = c("Journal A", "Journal B", "Journal C", "Journal D", "Journal E",
+  #               "Journal F", "Journal G", "Journal H", "Journal I", "Journal J",
+  #               "Journal A", "Journal B", "Journal C", "Journal D", "Journal E",
+  #               "Journal F", "Journal G", "Journal H", "Journal I", "Journal J"),
+  #   Year = c(2020, 2019, 2022, 2018, 2021,
+  #            2017, 2016, 2015, 2023, 2014,
+  #            2020, 2019, 2022, 2018, 2021,
+  #            2017, 2016, 2015, 2023, 2014)
+  # )
+  # 
+  # # Render the table within the specified div
+  # output$mockTable <- renderDT({
+  #   datatable(mock_data, options = list(dom = 't'))
+  # })
+
+
                 
 } 
   

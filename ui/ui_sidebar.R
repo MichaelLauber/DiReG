@@ -3,37 +3,42 @@ div(
   shinyWidgets::actionBttn(
     "btnORA",
     label = "OR Analysis",
-    style = "gradient",
+    style = "simple",
     color = "primary",
-    size = "md"
+    size = "md",
+    class = "action-btn-custom" 
   ),
   shinyWidgets::actionBttn(
     "btnGSEA",
     label = "GSEA",
-    style = "gradient",
+    style = "simple",
     color = "primary",
-    size = "md"
+    size = "md",
+    class = "action-btn-custom" 
   ),
   shinyWidgets::actionBttn(
     "btnGTEx",
-    label = "GTEx Tissue Expression",
-    style = "gradient",
+    label = "Tissue Expression",
+    style = "simple",
     color = "primary",
-    size = "md"
+    size = "md",
+    class = "action-btn-custom" 
   ),
   shinyWidgets::actionBttn(
     "btnIsoforms",
     label = "Isoform Potential",
-    style = "gradient",
+    style = "simple",
     color = "primary",
-    size = "md"
+    size = "md",
+    class = "action-btn-custom" 
   ),
   shinyWidgets::actionBttn(
     "btnTFA",
     label = "TFA Analysis",
-    style = "gradient",
+    style = "simple",
     color = "primary",
-    size = "md"
+    size = "md",
+    class = "action-btn-custom" 
   )
     
 )

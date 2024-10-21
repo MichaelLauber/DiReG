@@ -31,8 +31,27 @@ RUN wget --no-verbose https://download3.rstudio.org/ubuntu-14.04/x86_64/VERSION 
 
 
 # setup renv to handle R packages
-ENV RENV_VERSION 1.0.3
-RUN R -e "install.packages(c('remotes','huge'), repos = c(CRAN = 'https://cloud.r-project.org'))"
-RUN R -e "install.packages('https://cran.r-project.org/src/contrib/Archive/foreign/foreign_0.8-76.tar.gz')"
-RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"
+RUN Rscript -e 'install.packages("renv")'
 
+
+COPY renv.lock renv.lock
+RUN R -e "renv::restore()"
+
+COPY css /srv/shiny-server/css
+COPY data /srv/shiny-server/data
+COPY doc /srv/shiny-server/doc
+COPY sbs /srv/shiny-server/sbs
+COPY www /srv/shiny-server/www
+COPY utils /srv/shiny-server/utils
+COPY server /srv/shiny-server/server
+COPY ui /srv/shiny-server/ui
+COPY ui.R /srv/shiny-server/ui.R
+COPY server.R /srv/shiny-server/server.R 
+
+RUN chown -R shiny:shiny /srv/shiny-server
+
+RUN cd /srv/shiny-server
+
+EXPOSE 3636
+
+CMD ["R", "-e", "shiny::runApp('/srv/shiny-server/', host = '0.0.0.0', port = 3636)"]

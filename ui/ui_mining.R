@@ -1,8 +1,8 @@
-tabPanel("Signature Mining", 
+tabPanel("Signature Mining",  
          div(id="container-mining-input", 
              textInput("inputTextTFs", 
                        "",
-                       value = "Enter TFs..."
+                       value = "Enter Transcription Factors"
              ),
              
              actionButton("btnCreateDoro",
@@ -15,7 +15,7 @@ tabPanel("Signature Mining",
              )
          ), 
          div(id="container-mining", 
-             
+                
              div(id="container-outer-sidebar",
                  source("ui/ui_sidebar.R")$value
              ),
