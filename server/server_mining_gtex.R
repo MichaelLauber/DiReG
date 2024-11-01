@@ -1,12 +1,7 @@
-ensg_to_hgnc <- readRDS("data/ensg_to_hgnc.rds")
-
-sample.df <- read.delim("data/GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt", as.is=TRUE, header=TRUE, row.names=1)
-rnaseq.sample.df <- sample.df[sample.df['SMAFRZE']=='RNASEQ', ]
-mapping <- rnaseq.sample.df %>%
-  select(SMTS, SMTSD)
-mapping$id <- rownames(rnaseq.sample.df)
-
 library(slickR)
+ensg_to_hgnc <- readRDS("data/ensg_to_hgnc.rds")
+mapping <- readRDS("data/gtex_mapping.rds")
+
 # Create content for the carousel
 
 previousGTEXInputTFs <- reactiveVal(NULL)
@@ -14,36 +9,29 @@ previousGTEXInputTFs <- reactiveVal(NULL)
 observeEvent(input$btnGTEx, ({
   
   if(!networkCreated){
-    shinyalert::shinyalert("There are no Genes to Analyse",
-                           "Please input genes and press the RUN button before performing any analysis",
-                           type = "error")
+    shinyalert::shinyalert(
+      "There are no Genes to Analyse",
+      "Please input genes and press the RUN button before performing any analysis",
+       type = "error")
     return()}
   
   
   currentTFs <- inputTFs()
   
   if (identical(currentTFs, previousGTEXInputTFs())) {
-    
     return()
   } 
   
   symbols <- c(inputTFs())
-  
   nrFigs <- length(symbols)
   
-  #print(symbols)
-  
-  screens <- lapply(1:nrFigs, function(i){
-    
-    print(symbols[i])
+  screens <- lapply(seq_len(nrFigs), function(i){
     
     gene_name <- ensg_to_hgnc %>%
       filter(HGNC == symbols[i]) %>%
       select(ENSG)
     
     filename <- paste0(gene_name, ".rds")
-    
-    print(filename)
     
     gene <- readRDS(file.path("~/gtex_splitted",filename))
     
@@ -94,11 +82,9 @@ observeEvent(input$btnGTEx, ({
   
   
   output$carousel <- renderUI({
-    
     do.call(glide, screens)
-    
-    
   })
+  
   previousGTEXInputTFs(currentTFs)
 })
 )

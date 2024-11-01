@@ -22,3 +22,9 @@ saveRDS(gtexTPMnorm,"data/gtexTPMnorm.rds")
 saveRDS(gtexTPMscaled,"data/gtexTPMscaled.rds")
 
 
+sample.df <- read.delim("data/GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt", as.is=TRUE, header=TRUE, row.names=1)
+rnaseq.sample.df <- sample.df[sample.df['SMAFRZE']=='RNASEQ', ]
+mapping <- rnaseq.sample.df %>%
+  select(SMTS, SMTSD)
+mapping$id <- rownames(rnaseq.sample.df)
+saveRDS(mapping, "data/gtex_mapping.rds")

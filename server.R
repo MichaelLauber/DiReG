@@ -48,6 +48,7 @@ function(input, output, session) {
   
   handleButtonClick <- function(buttonId, conditionSetter) {
     observeEvent(input[[buttonId]], {
+      
       if (!networkCreated) {
         return()
       }
@@ -55,8 +56,6 @@ function(input, output, session) {
       hideAll()
       resetBtns()
       conditionSetter(1)
-      print("Value:")
-      print(conditionSetter())
       shinyjs::runjs(sprintf("document.getElementById('%s').classList.remove('bttn-primary')", buttonId))
       shinyjs::runjs(sprintf("document.getElementById('%s').classList.add('bttn-success')", buttonId))
     })
@@ -68,7 +67,7 @@ function(input, output, session) {
   cond_gtex <- reactiveVal(0)
   cond_isoforms <- reactiveVal(0)
   cond_tfa <- reactiveVal(0)
-  # 
+
   handleButtonClick("btnORA", cond_ora)
   handleButtonClick("btnGSEA", cond_gsea)
   handleButtonClick("btnGTEx", cond_gtex)
@@ -97,8 +96,7 @@ function(input, output, session) {
   
   ##Explore
   
-  reprogramming_protocols <-
-     read.csv(file.path("data","reprogramming_protocols.csv"))
+  
   
   cond_exploreExp <- reactiveVal(1)
   cond_exploreComp <- reactiveVal(0)
@@ -118,8 +116,7 @@ function(input, output, session) {
                  cond_exploreExp(0)
                  cond_exploreComp(1)
                }
-               
-               ) 
+  ) 
       
  
    

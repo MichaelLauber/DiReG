@@ -1,4 +1,4 @@
-all_infered_protocols <- read.csv(file.path("data","all_inferred_protocols.csv"))
+#all_infered_protocols <- read.csv(file.path("data","all_inferred_protocols.csv"))
 
 #update target cell when startcell was selected
 observe({
