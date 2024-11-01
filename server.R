@@ -37,121 +37,61 @@ function(input, output, session) {
     cond_tfa(0)
   }
   
-  # Latest clicked buttons of signature mining approaches appears differently colored
+  
   resetBtns <- function(){
-    shinyjs::runjs('document.getElementById("btnORA").classList.remove("bttn-success")')
-    shinyjs::runjs('document.getElementById("btnORA").classList.add("bttn-primary")')
-    
-    shinyjs::runjs('document.getElementById("btnGSEA").classList.remove("bttn-success")')
-    shinyjs::runjs('document.getElementById("btnGSEA").classList.add("bttn-primary")')
-    
-    shinyjs::runjs('document.getElementById("btnGTEx").classList.remove("bttn-success")')
-    shinyjs::runjs('document.getElementById("btnGTEx").classList.add("bttn-primary")')
-    
-    shinyjs::runjs('document.getElementById("btnIsoforms").classList.remove("bttn-success")')
-    shinyjs::runjs('document.getElementById("btnIsoforms").classList.add("bttn-primary")')
-    
-    shinyjs::runjs('document.getElementById("btnTFA").classList.remove("bttn-success")')
-    shinyjs::runjs('document.getElementById("btnTFA").classList.add("bttn-primary")')
+    btn_ids <- c("btnORA", "btnGSEA", "btnGTEx", "btnIsoforms", "btnTFA")
+    for (btn_id in btn_ids) {
+      shinyjs::runjs(sprintf("document.getElementById('%s').classList.remove('bttn-success')", btn_id))
+      shinyjs::runjs(sprintf("document.getElementById('%s').classList.add('bttn-primary')", btn_id))
+    }
   }
   
-  
-  #OR analysis 
+  handleButtonClick <- function(buttonId, conditionSetter) {
+    observeEvent(input[[buttonId]], {
+      if (!networkCreated) {
+        return()
+      }
+
+      hideAll()
+      resetBtns()
+      conditionSetter(1)
+      print("Value:")
+      print(conditionSetter())
+      shinyjs::runjs(sprintf("document.getElementById('%s').classList.remove('bttn-primary')", buttonId))
+      shinyjs::runjs(sprintf("document.getElementById('%s').classList.add('bttn-success')", buttonId))
+    })
+  }
+
+
   cond_ora <- reactiveVal(0)
-  
-  observeEvent(input$btnORA,{
-    
-    if(!networkCreated){
-      return()
-    }
-    
-    hideAll()
-    resetBtns()
-    cond_ora(1)
-    shinyjs::runjs('document.getElementById("btnORA").classList.remove("bttn-primary")')
-    shinyjs::runjs('document.getElementById("btnORA").classList.add("bttn-success")')
-    
-  })
-  output$cond_ora = renderText({cond_ora()})
-  
-  #gsea  
   cond_gsea <- reactiveVal(0)
-  observeEvent(input$btnGSEA,{
-    
-    if(!networkCreated){
-      return()
-    }
-    
-    hideAll()
-    resetBtns()
-    shinyjs::runjs('document.getElementById("btnGSEA").classList.remove("bttn-primary")')
-    shinyjs::runjs('document.getElementById("btnGSEA").classList.add("bttn-success")')
-    cond_gsea(1)
-  })
-  output$cond_gsea = renderText({cond_gsea()})
-  
-  #gtex
   cond_gtex <- reactiveVal(0)
-  observeEvent(input$btnGTEx,{
-    
-    if(!networkCreated){
-      return()
-    }
-    
-    hideAll()
-    resetBtns()
-    shinyjs::runjs('document.getElementById("btnGTEx").classList.remove("bttn-primary")')
-    shinyjs::runjs('document.getElementById("btnGTEx").classList.add("bttn-success")')
-    cond_gtex(1)
-  })
-  output$cond_gtex = renderText({cond_gtex()})
-
-  
-  #isoform
   cond_isoforms <- reactiveVal(0)
-  observeEvent(input$btnIsoforms,{
-    
-    if(!networkCreated){
-      return()
-    }
-    
-    hideAll()
-    resetBtns()
-    shinyjs::runjs('document.getElementById("btnIsoforms").classList.remove("bttn-primary")')
-    shinyjs::runjs('document.getElementById("btnIsoforms").classList.add("bttn-success")')
-    cond_isoforms(1)
-  })
-  output$cond_isoforms = renderText({cond_isoforms()})
-  
-
-  #tfa
   cond_tfa <- reactiveVal(0)
-  observeEvent(input$btnTFA,{
-    
-    if(!networkCreated){
-      return()
-    }
-    
-    hideAll()
-    resetBtns()
-    shinyjs::runjs('document.getElementById("btnTFA").classList.remove("bttn-primary")')
-    shinyjs::runjs('document.getElementById("btnTFA").classList.add("bttn-success")')
-    
-    #cond_tfa(1)
-  })
-  output$cond_tfa = renderText({cond_tfa()})
+  # 
+  handleButtonClick("btnORA", cond_ora)
+  handleButtonClick("btnGSEA", cond_gsea)
+  handleButtonClick("btnGTEx", cond_gtex)
+  handleButtonClick("btnIsoforms", cond_isoforms)
+  handleButtonClick("btnTFA", cond_tfa)
   
+  
+  output$cond_ora = renderText({cond_ora()})
+  output$cond_gsea = renderText({cond_gsea()})
+  output$cond_gtex = renderText({cond_gtex()})
+  output$cond_isoforms = renderText({cond_isoforms()})
+  output$cond_tfa = renderText({cond_tfa()})
+
   observeEvent(input$ok, {
     cond_tfa(1)
   })
-  
   
   outputOptions(output, 'cond_ora', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_gsea', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_gtex', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_isoforms', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_tfa', suspendWhenHidden=FALSE)
-  
+
   #### End Mining
   
   
