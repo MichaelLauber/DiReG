@@ -52,14 +52,21 @@ data <- reactive({
 
 networkCreated <- FALSE
 
+
 btnCreateDoroPressed <- reactiveVal(FALSE)
 
-inputTFs <- eventReactive(input$btnCreateDoro, {
+observeEvent(input$btnCreateDoro, {
+  # Update the global variable and other side effects
   networkCreated <<- TRUE
   btnCreateDoroPressed(TRUE)
   cond_visnet(0)
-  shinyjs::runjs(sprintf('window.cond_visnet = "%s"', cond_visnet()))
   
+  # Execute JavaScript code using shinyjs
+  shinyjs::runjs(sprintf('window.cond_visnet = "%s"', cond_visnet()))
+})
+
+inputTFs <- eventReactive(input$btnCreateDoro, {
+
   split_result <- stringr::str_split(input$inputTextTFs, "\\s+") %>%  unlist()
   input <- split_result[split_result != ""] 
   gprofiler2::gconvert(query = input,

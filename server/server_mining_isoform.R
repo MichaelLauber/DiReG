@@ -6,6 +6,10 @@ observeEvent(input$btnIsoforms, {
                            "Please input genes and press the RUN button before performing any analysis",
                            type = "error")
     return()}
+
+  # if (!checkNetworkCreated()) {
+  #   return()
+  # }
   
   if(input$radioOrgDorothea == "mouse"){
     shinyalert::shinyalert("Not Supported for Mouse data",

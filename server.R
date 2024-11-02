@@ -96,8 +96,6 @@ function(input, output, session) {
   
   ##Explore
   
-  
-  
   cond_exploreExp <- reactiveVal(1)
   cond_exploreComp <- reactiveVal(0)
   

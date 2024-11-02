@@ -14,6 +14,9 @@ observeEvent(input$btnGTEx, ({
       "Please input genes and press the RUN button before performing any analysis",
        type = "error")
     return()}
+  # if (!checkNetworkCreated()) {
+  #   return()
+  # }
   
   
   currentTFs <- inputTFs()

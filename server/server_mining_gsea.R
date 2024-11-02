@@ -3,7 +3,6 @@ library(fgsea)
 
 previousInputTFs <- reactiveVal(NULL)
 
-
 observeEvent(input$btnGSEA, {
   
   if(!networkCreated){
@@ -12,11 +11,13 @@ observeEvent(input$btnGSEA, {
                            type = "error")
     return()}
   
+  # if (!checkNetworkCreated()) {
+  #   return()
+  # }
+  
   currentTFs <- inputTFs()
   
-  
   if (identical(currentTFs, previousInputTFs())) {
-    
     return()
   } 
   

@@ -2,6 +2,30 @@
 
 previousNodes <- reactiveVal(NULL)
 
+previousSources <- reactiveVal(NULL)
+
+showSourceModal <- function() {
+  # Get the previous selection or use the default selection
+  selectedSources <- previousSources()
+  if (is.null(selectedSources)) {
+    selectedSources <- c("GO:MF", "GO:CC", "GO:BP", "KEGG", "REAC")
+  }
+  
+  showModal(modalDialog(
+    title = "Select Sources for OR Analysis",
+    checkboxGroupInput(
+      inputId = "sourceSelection",
+      label = "Choose the data sources:",
+      choices = c("GO:MF", "GO:CC", "GO:BP", "KEGG", "REAC"),
+      selected = selectedSources  # Use the previous selection or the default
+    ),
+    footer = tagList(
+      modalButton("Cancel"),
+      actionButton("confirmSources", "OK")
+    )
+  ))
+}
+
 observeEvent(input$btnORA,{
   
   if(!networkCreated){
@@ -10,48 +34,70 @@ observeEvent(input$btnORA,{
                            type = "error")
     return()}
   
+  # if (!checkNetworkCreated()) {
+  #   return()
+  # }
+  showSourceModal()
+})
+
+# Run OR analysis when the user confirms their source selection
+observeEvent(input$confirmSources, {
+  # Get the selected sources
+  selectedSources <- input$sourceSelection
+  
   currentNodes <- nodes()$id
   
+  removeModal()
   
-  if (identical(currentNodes, previousNodes())) {
-    
+  if (identical(currentNodes, previousNodes()) &  identical(selectedSources, previousSources()) ) {
     return()
-  } 
+  }
+  
+  previousSources(selectedSources)
   
   waiter <- waiter::Waiter$new()
   waiter$show()
   on.exit(waiter$hide())
   
-  notification <- showNotification(glue::glue("Overrepresentation Analysis running. This can take a few seconds."), type = "message", duration = NULL, closeButton = TRUE)
+  notification <- showNotification(
+    glue::glue("Overrepresentation Analysis running. This can take a few seconds."),
+    type = "message", duration = NULL, closeButton = TRUE
+  )
   on.exit(removeNotification(notification), add = TRUE)
   
-  if(input$radioOrgDorothea == "human"){
-    organism <- "hsapiens"
-  } else {
-    organism <- 'mmusculus'
-  }
+  organism <- ifelse(input$radioOrgDorothea == "human", "hsapiens", "mmusculus")
   
-  enrichData <<-
-    gprofiler2::gost(query = nodes()$id,
-                     organism = organism, ordered_query = FALSE,
-                     multi_query = FALSE, significant = TRUE, exclude_iea = FALSE,
-                     measure_underrepresentation = FALSE, evcodes = FALSE,
-                     user_threshold = 0.05, correction_method = "g_SCS",
-                     domain_scope = "annotated", custom_bg = NULL,
-                     numeric_ns = "", sources = c("GO:MF", "GO:CC", "GO:BP", "KEGG","REAC"), as_short_link = FALSE)
-  
-  
+  # Perform the OR analysis using the selected sources
+  enrichData <<- gprofiler2::gost(
+    query = nodes()$id,
+    organism = organism,
+    ordered_query = FALSE,
+    multi_query = FALSE,
+    significant = TRUE,
+    exclude_iea = FALSE,
+    measure_underrepresentation = FALSE,
+    evcodes = FALSE,
+    user_threshold = 0.05,
+    correction_method = "g_SCS",
+    domain_scope = "annotated",
+    custom_bg = NULL,
+    numeric_ns = "",
+    sources = selectedSources,  # Use the selected sources here
+    as_short_link = FALSE
+  )
   
   output$enrichPlot <- renderPlotly({
     gprofiler2::gostplot(enrichData, capped = TRUE, interactive = TRUE)
   })
   
   output$tbl_enrich <- renderDT(
-    enrichData$result[,c(11,3:6,9, 10)],
+    enrichData$result[, c(11, 3:6, 9, 10)],
     options = list(pageLength = 5)
   )
+  
   previousNodes(currentNodes)
 })
+
 
 
 
@@ -60,6 +106,6 @@ output$downloadDataORA <- downloadHandler(
     paste("ORA-", Sys.Date(), ".csv", sep="")
   },
   content = function(file) {
-    write.csv(enrichData$result[,c(11,3:6,9, 10)], file)
+    write.csv(enrichData$result[,c(11, 3:6, 9, 10)], file, row.names = FALSE)
   }
 )

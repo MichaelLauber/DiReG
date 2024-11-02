@@ -64,6 +64,10 @@ observeEvent(input$btnTFA, {
                            type = "error")
     return()}
   
+  # if (!checkNetworkCreated()) {
+  #   return()
+  # }
+  
   removeModal()
   
   showModal(dataModal())
