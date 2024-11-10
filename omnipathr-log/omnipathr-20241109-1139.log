@@ -1,0 +1,29 @@
+[2024-11-09 11:39:09] [INFO]    [OmnipathR] Welcome to OmnipathR!
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] Reading JSON from `/nfs/home/users/michaell2/.cache/OmnipathR/cache.json` (encoding: UTF-8).
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2024-11-09 11:39:09] [INFO]    [OmnipathR] Initialized cache: `/nfs/home/users/michaell2/.cache/OmnipathR`.
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] Reading JSON from `/nfs/home/users/michaell2/R/x86_64-pc-linux-gnu-library/4.2/OmnipathR/db/db_def.json` (encoding: UTF-8).
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] Reading JSON from `/nfs/home/users/michaell2/R/x86_64-pc-linux-gnu-library/4.2/OmnipathR/internal/magic_bytes.json` (encoding: UTF-8).
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] Reading JSON from `/nfs/home/users/michaell2/R/x86_64-pc-linux-gnu-library/4.2/OmnipathR/internal/urls.json` (encoding: UTF-8).
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] Reading JSON from `/nfs/home/users/michaell2/R/x86_64-pc-linux-gnu-library/4.2/OmnipathR/internal/id_types.json` (encoding: UTF-8).
+[2024-11-09 11:39:09] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2024-11-09 11:39:10] [TRACE]   [OmnipathR] Loaded data from RDS `/nfs/home/users/michaell2/.cache/OmnipathR/485498a0b8637e8a936f7efbf1fcc7b742d7867a-1.rds`.
+[2024-11-09 11:39:10] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&dorothea_levels=A,B&fields=sources,references,curation_effort&license=academic`
+[2024-11-09 11:39:13] [SUCCESS] [OmnipathR] Loaded 68297 interactions from cache.
+[2024-11-09 12:08:44] [TRACE]   [OmnipathR] Loaded data from RDS `/nfs/home/users/michaell2/.cache/OmnipathR/485498a0b8637e8a936f7efbf1fcc7b742d7867a-1.rds`.
+[2024-11-09 12:08:44] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&dorothea_levels=A,B&fields=sources,references,curation_effort&license=academic`
+[2024-11-09 12:08:46] [SUCCESS] [OmnipathR] Loaded 68297 interactions from cache.
+[2024-11-09 12:20:55] [WARN]    [OmnipathR] DoRothEA confidence levels available are A, B, C and D.
+[2024-11-09 12:20:55] [INFO]    [OmnipathR] Cache record does not exist: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&dorothea_levels=A,B,D,E&fields=sources,references,curation_effort&license=academic`
+[2024-11-09 12:30:14] [TRACE]   [OmnipathR] Loaded data from RDS `/nfs/home/users/michaell2/.cache/OmnipathR/485498a0b8637e8a936f7efbf1fcc7b742d7867a-1.rds`.
+[2024-11-09 12:30:14] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&dorothea_levels=A,B&fields=sources,references,curation_effort&license=academic`
+[2024-11-09 12:30:16] [SUCCESS] [OmnipathR] Loaded 68297 interactions from cache.
+[2024-11-09 13:29:10] [TRACE]   [OmnipathR] Loaded data from RDS `/nfs/home/users/michaell2/.cache/OmnipathR/485498a0b8637e8a936f7efbf1fcc7b742d7867a-1.rds`.
+[2024-11-09 13:29:10] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&dorothea_levels=A,B&fields=sources,references,curation_effort&license=academic`
+[2024-11-09 13:29:12] [SUCCESS] [OmnipathR] Loaded 68297 interactions from cache.
+[2024-11-09 13:37:56] [TRACE]   [OmnipathR] Loaded data from RDS `/nfs/home/users/michaell2/.cache/OmnipathR/485498a0b8637e8a936f7efbf1fcc7b742d7867a-1.rds`.
+[2024-11-09 13:37:56] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&dorothea_levels=A,B&fields=sources,references,curation_effort&license=academic`
+[2024-11-09 13:37:57] [SUCCESS] [OmnipathR] Loaded 68297 interactions from cache.

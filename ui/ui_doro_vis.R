@@ -17,29 +17,37 @@ source(file.path("utils", "utils_popover.R"))
 
 fluidRow(
   column(12, div(
-    conditionalPanel(
-      condition = 'window.cond_visnet == "1"',
-      div(h2("Explore a set of Transcription factors"),
-          
-          p(HTML("<strong>OR Analysis:</strong> Performs Overrepresentation Analysis based on the input TFs and their targets.")),
-          p(HTML("<strong>GSEA:</strong> Performs Geneset Enrichment Analysis based on the input TFs and their targets. 
-                  Analysis is performed on gene sets from (<a href='https://www.gsea-msigdb.org/gsea/msigdb' target='_blank'>MigSigDB.</a>); TFs, interaction with higher confidence, 
-                  and genes more closely regulated by the input TF get a higher rank.")),
-          p(HTML("<strong>GTEx Tissue Expression:</strong> Explore the expression of input TFs in different tissues based on (<a href='https://gtexportal.org/home/' target='_blank'>GTEx data</a>).")),
-          p(HTML("<strong>Isoform Potential:</strong> Learn about the potential of the different isoforms of the input TFs to induce differentiations in hESC. 
-                  Data is based on a publication from (<a href='https://www.cell.com/cell/pdf/S0092-8674(22)01470-2.pdf' target='_blank'>Joung et al.</a>) 
-                  and measured via pseudotime (diffusion/RNA velocity) upon expression of isoform in hESC.")),
-          p(HTML("<strong>TFA Analysis:</strong> Explore TF activities (TFA) in target and source cells. 
-                  TFAs are calculated based on GTEx expression data and with decouplR, which calculates the consensus over multiple methods for TFA inference. 
-                  To learn more about the method, visit <a href='https://saezlab.github.io/decoupleR/articles/decoupleR.html' target='_blank'>decoupleR documentation</a>."))
-          
-          )
-      
+    shinyjs::hidden( div(id="expandButtonContainer", 
+                         style = "margin: 20px auto; text-align: center; width: 50%;",
+                         actionButton("expandButton", "Expand Network")) 
+                     ),
+    div(id="networkContainer", 
+      conditionalPanel(
+        condition = 'window.cond_visnet == "1"',
+        div(h2("Explore a set of Transcription factors"),
+            
+            p(HTML("<strong>OR Analysis:</strong> Performs Overrepresentation Analysis based on the input TFs and their targets.")),
+            p(HTML("<strong>GSEA:</strong> Performs Geneset Enrichment Analysis based on the input TFs and their targets. 
+                    Analysis is performed on gene sets from (<a href='https://www.gsea-msigdb.org/gsea/msigdb' target='_blank'>MigSigDB.</a>); TFs, interaction with higher confidence, 
+                    and genes more closely regulated by the input TF get a higher rank.")),
+            p(HTML("<strong>GTEx Tissue Expression:</strong> Explore the expression of input TFs in different tissues based on (<a href='https://gtexportal.org/home/' target='_blank'>GTEx data</a>).")),
+            p(HTML("<strong>Isoform Potential:</strong> Learn about the potential of the different isoforms of the input TFs to induce differentiations in hESC. 
+                    Data is based on a publication from (<a href='https://www.cell.com/cell/pdf/S0092-8674(22)01470-2.pdf' target='_blank'>Joung et al.</a>) 
+                    and measured via pseudotime (diffusion/RNA velocity) upon expression of isoform in hESC.")),
+            p(HTML("<strong>TFA Analysis:</strong> Explore TF activities (TFA) in target and source cells. 
+                    TFAs are calculated based on GTEx expression data and with decouplR, which calculates the consensus over multiple methods for TFA inference. 
+                    To learn more about the method, visit <a href='https://saezlab.github.io/decoupleR/articles/decoupleR.html' target='_blank'>decoupleR documentation</a>.")),
+            p(HTML("For more detailed explanations see <strong>Documentation</strong>"))
+            
+            )
+        
       ),
-    conditionalPanel(
-      condition = 'window.cond_visnet == "0"',  
-    visNetworkOutput("visNet_dorothea")
-    ),
+    
+      conditionalPanel(
+        condition = 'window.cond_visnet == "0"',  
+      visNetworkOutput("visNet_dorothea")
+      ),
+    
     hr(),
     fluidRow(column(12, hr())),
     
@@ -83,7 +91,7 @@ fluidRow(
       column(3,uiOutput("tfFilter")),
       
     ),
-    
+    ),
     conditionalPanel(
       condition = "output.btnCreateDoroPressed",  # This checks the value of buttonPressed() in the output list
       column(2, offset = 10,

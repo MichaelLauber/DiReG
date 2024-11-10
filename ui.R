@@ -3,16 +3,19 @@ library(visNetwork)
 library(plotly)
 library(DT)
 library(shinyglide) 
-#library(ollamar)    
-   
-#source("utils/utils_selectizeInput.R")
-# reprogramming_protocols <-
-#   read.csv(file.path("data","reprogramming_protocols.csv"))
-# startInputList <- createChoices(reprogramming_protocols$Start)
-                       
+library(ollamar)    
+    
+#test_connection() 
+#list_models()                     
+# resp <- generate("tinyllama", "tell me a 5-word story") 
+# resp_txt <- resp_process(resp, "text")   
+# resp_df <- resp_process(resp, "df")           
+# resp_text <- resp_df$response
+
+
             
 fluidPage(
-         
+            
   tags$head(
     #for fileinput in AME?
      tags$script(src = "load-example.js"),
@@ -33,12 +36,12 @@ fluidPage(
     footer = column(12, align="center", 
                         "DiReG-App 2024 (v1.0.0)",
                         ),
+    source("ui/ui_mining.R")$value,
     source("ui/test_llm.R")$value,      
     source("ui/ui_home.R")$value,
-      
+       
     source("ui/ui_explore.R")$value,
        
-    source("ui/ui_mining.R")$value,
       
     source("ui/ui_pred_ame.R")$value,
     
@@ -46,6 +49,6 @@ fluidPage(
      
        
     hr()
-  )
-                         
+  )     
+                          
 )  

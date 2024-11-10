@@ -6,7 +6,7 @@ tabPanel("Home",
              sidebarLayout(
                sidebarPanel(
                  textInput("user_prompt", "Enter your prompt:", ""),
-                 actionButton("submit_btn", "Submit")
+                 actionButton("submit_btn_prompt", "Submit")
                ),
                
                mainPanel(

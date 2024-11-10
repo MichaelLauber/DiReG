@@ -64,10 +64,6 @@ observeEvent(input$btnTFA, {
                            type = "error")
     return()}
   
-  # if (!checkNetworkCreated()) {
-  #   return()
-  # }
-  
   removeModal()
   
   showModal(dataModal())
@@ -103,18 +99,19 @@ observeEvent(input$ok, {
   prevState$celltype2 <- celltype2
   prevState$data <- data()
   
-  
   #for debugging
   # celltype1 <- "Bladder"
   # celltype2 <- "Liver" 
   
   counts <- gtexTPM %>%
-    filter(!duplicated(genes)) %>%
-    select(all_of(c(celltype1, celltype2))) %>%
+    dplyr::filter(!duplicated(genes)) %>%
+    dplyr::select(all_of(c(celltype1, celltype2))) %>%
     as.matrix()
-  rownames(counts) <- gtexTPM %>% filter(!duplicated(genes)) %>% pull("genes")
   
-  
+  rownames(counts) <- gtexTPM %>% 
+    dplyr::filter(!duplicated(genes)) %>% 
+    dplyr::pull("genes")
+
   res <- decoupleR::decouple(mat=counts, #remove after debugging!
                              net=data(),
                              .source='from',
@@ -125,15 +122,15 @@ observeEvent(input$ok, {
                                mlm = list(.mor = "mor")
                              ),
                              minsize = 5) %>%
-    mutate(score = round(score, 2)) %>%
-    filter(statistic == "consensus") %>%
-    select(-run_id)
+    dplyr::mutate(score = round(score, 2)) %>%
+    dplyr::filter(statistic == "consensus") %>%
+    dplyr::select(-run_id)
   
   prevState$res <- res
-  
-  output$tbl_tfa <- renderDT({
+
+    output$tbl_tfa <- renderDT({
     res %>%
-      select(-statistic) %>% 
+      dplyr::select(-statistic) %>% 
       DT::datatable() %>%
       formatSignif(columns = c('p_value'), digits = 3)
     
@@ -143,8 +140,8 @@ observeEvent(input$ok, {
   output$tfa_plot <-  renderPlotly({
     
     combined <- inner_join(
-      res %>% filter(statistic == "consensus") %>% split(.$condition) %>% `[[`(1),
-      res %>% filter(statistic == "consensus") %>% split(.$condition) %>% `[[`(2),
+      res %>% dplyr::filter(statistic == "consensus") %>% split(.$condition) %>% `[[`(1),
+      res %>% dplyr::filter(statistic == "consensus") %>% split(.$condition) %>% `[[`(2),
       by = c("source", "statistic")
     )
     

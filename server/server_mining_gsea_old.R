@@ -2,8 +2,6 @@ library(fgsea)
 
 previousNodesGSEA <- reactiveVal(NULL)
 cachedGeneSets <- reactiveValues(human = NULL, murine = NULL)
-cachedResGseaDT <- reactiveValues(gsea_res_DTs  = NULL)
-
 
 loadGeneSets <- function(organism) {
   if (organism == "human") {
@@ -82,12 +80,25 @@ observeEvent(input$btnGSEA, {
         dplyr::mutate(padj = round(padj, 5), NES = round(NES, 2))
     })
     
+    gsea_res_DT <<- gsea_res_DTs[[1]]
     
-    cachedResGseaDT$gsea_res_DTs <- gsea_res_DTs
-    
-    gseaDTs <- lapply(gsea_res_DTs, function(dt){
+    gseaDTs <<- lapply(gsea_res_DTs, function(dt){
       dt %>% select("pathway","padj", "NES", "leadingEdge")} )
     
+    
+    # plots <- lapply(fgsea_results, function(res) {
+    #   
+    #   res %>%
+    #     arrange(desc(abs(NES))) %>%
+    #     slice(1:10) %>%
+    #     mutate(pathway = factor(pathway, levels = pathway)) %>%
+    #     ggplot(aes(x = NES, y = pathway, size = size, color = padj)) +
+    #     geom_point() +
+    #     scale_size(range = c(3, 6)) +
+    #     scale_colour_gradient(low = "red", high = "blue") +
+    #     theme_bw() +
+    #     labs(y = "Pathway", x = "Normalized Enrichment Score", title = "Top 10 Pathways")
+    # })
     
     plots <- lapply(fgsea_results, function(res) {
       # Take top 10 pathways based on NES
@@ -140,6 +151,15 @@ observeEvent(input$btnGSEA, {
     
     names(plots) <- names_migsig_sets[1:2] #CHANGE !!!!!!!
     
+    # screens_plot <- lapply(seq_along(plots), function(i){
+    #   shinyglide::screen(
+    #     h3(names_migsig_sets[i], align="center"),
+    #     renderPlot({plots[i]}),
+    #     renderDT({
+    #       gseaDTs[[i]]
+    #     })
+    #   )
+    # })
     
     screens_plot <- lapply(seq_along(plots), function(i) {
       shinyglide::screen(
@@ -172,30 +192,11 @@ observeEvent(input$btnGSEA, {
   previousNodesGSEA(currentNodesGSEA)
 })
 
-
-output$downloadDataGSEA <- downloadHandler(
+output$downloadDataGSEA<- downloadHandler(
   filename = function() {
-    paste0("GSEA-", Sys.Date(), ".csv")
+    paste("GSEA-", Sys.Date(), ".csv", sep="")
   },
   content = function(file) {
-    req(cachedResGseaDT$gsea_res_DTs)
-    
-    # Combine all GSEA data tables into one data frame using bind_rows
-    combined_gseaDT <- dplyr::bind_rows(
-      lapply(names(cachedResGseaDT$gsea_res_DTs), function(name) {
-        df <- cachedResGseaDT$gsea_res_DTs[[name]]
-        df$Collection <- name  # Add a column to indicate the gene set collection
-        df
-      })
-    )
-    
-    # Convert 'leadingEdge' from list to concatenated string
-    combined_gseaDT <- combined_gseaDT %>%
-      dplyr::mutate(
-        leadingEdge = sapply(leadingEdge, function(x) paste(x, collapse = ", "))
-      )
-    
-    # Write to CSV
-    write.csv(combined_gseaDT, file, row.names = FALSE)
+    write.csv(do.call(rbind,gseaDTs), file)
   }
 )

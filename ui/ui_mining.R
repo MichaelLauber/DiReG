@@ -2,7 +2,8 @@ tabPanel("Signature Mining",
          div(id="container-mining-input", 
              textInput("inputTextTFs", 
                        "",
-                       value = "Enter Transcription Factors"
+                       #value = "Enter Transcription Factors"
+                       value = "HNF1A"
              ),
              
              actionButton("btnCreateDoro",
@@ -22,15 +23,24 @@ tabPanel("Signature Mining",
              
              div( id="container-mining-main",
                   
-                  
+                   
                   source("ui/ui_doro_vis.R")$value,
+                  
                   
                   conditionalPanel('output.cond_ora == "1"',
                                    hr(),
                                    hr(),
+                                   div(
+                                     style = "margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;",
+                                     h3("Ask a LLM Question"),
+                                     textInput("user_prompt_ora","Type your question:", placeholder = "Are these Genesets specfic for ... cells"),
+                                     actionButton("submit_prompt_ora_btn", "Ask"),
+                                     verbatimTextOutput("llm_response_ora")
+                                   ),
                                    h3('Overrepresentation Analysis based on Dorothea Network', align="center"),
                                    div(
                                      plotlyOutput("enrichPlot"),
+                                     uiOutput("sourceSelectionUI"),
                                      DTOutput("tbl_enrich"),
                                      downloadButton('downloadDataORA', 'Download Data')
                                    )),

@@ -11,6 +11,56 @@
 # Define server logic required to draw a histogram
 function(input, output, session) {
   
+  con_test <- test_connection()
+  
+  # ollama_con_test <- test_connection()
+  # print(ollama_con_test)
+  # 
+  # observeEvent(input$submit_btn_prompt, {
+  #    user_prompt <- input$user_prompt
+  #   
+  #   output$ollama_response <- renderText("Generating response, please wait...")  
+  #   
+  #   shinyjs::runjs("$('#ollama_response').text('Generating response, please wait...');")
+  #   
+  #   # Check if the Ollama server is running
+  #   if (ollama_con_test$status_code != 200) {
+  #     output$ollama_response <- renderText("Ollama server is not running. Please start the Ollama app.")
+  #     return()
+  #   }
+  #   
+  #   output$ollama_response <- renderText("Generating response, please wait...")
+  # 
+  #   # Generate response
+  #   response <- generate("tinyllama", user_prompt, output = "text")
+  # 
+  #   output$ollama_response <- renderText({
+  #     response
+  #   })
+  # })
+  
+  observeEvent(input$submit_prompt_ora_btn, {
+    
+    user_prompt <- input$user_prompt_ora
+    output$llm_response_ora <- renderText("Generating response, please wait...")
+    shinyjs::runjs("$('#llm_response_ora').text('Generating response, please wait...');")
+
+    # Check if the Ollama server is running
+    if (con_test$status_code != 200) {
+      output$llm_response_ora <- renderText("Ollama server is not running. Please start the Ollama app.")
+      return()
+    }
+    # Generate response
+    response <- generate("tinyllama", user_prompt, output = "text")
+
+    output$llm_response_ora <- renderText({
+      response
+    })
+  })
+ 
+  
+  
+  
   cond_visnet <- reactiveVal(0)
   cond_visnet(1)
   
@@ -58,9 +108,17 @@ function(input, output, session) {
       conditionSetter(1)
       shinyjs::runjs(sprintf("document.getElementById('%s').classList.remove('bttn-primary')", buttonId))
       shinyjs::runjs(sprintf("document.getElementById('%s').classList.add('bttn-success')", buttonId))
+      
+      shinyjs::toggle(id = 'networkContainer', condition = FALSE)
+      shinyjs::toggle(id = 'expandButtonContainer', condition = TRUE) 
     })
   }
-
+  
+  observeEvent(input$expandButton, {
+    shinyjs::toggle(id = "networkContainer", condition = TRUE)  # Show the network container
+    shinyjs::toggle(id = "expandButtonContainer", condition = FALSE)  # Hide the button container
+  })
+ 
 
   cond_ora <- reactiveVal(0)
   cond_gsea <- reactiveVal(0)
