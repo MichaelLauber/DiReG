@@ -13,51 +13,134 @@ function(input, output, session) {
   
   con_test <- test_connection()
   
-  # ollama_con_test <- test_connection()
-  # print(ollama_con_test)
-  # 
-  # observeEvent(input$submit_btn_prompt, {
-  #    user_prompt <- input$user_prompt
-  #   
-  #   output$ollama_response <- renderText("Generating response, please wait...")  
-  #   
-  #   shinyjs::runjs("$('#ollama_response').text('Generating response, please wait...');")
-  #   
-  #   # Check if the Ollama server is running
-  #   if (ollama_con_test$status_code != 200) {
-  #     output$ollama_response <- renderText("Ollama server is not running. Please start the Ollama app.")
-  #     return()
-  #   }
-  #   
-  #   output$ollama_response <- renderText("Generating response, please wait...")
-  # 
-  #   # Generate response
-  #   response <- generate("tinyllama", user_prompt, output = "text")
-  # 
-  #   output$ollama_response <- renderText({
-  #     response
-  #   })
-  # })
+  # Set your API key
+  api_key <- "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"
+  
+  # Define the API endpoint
+  url <- "https://api.openai.com/v1/chat/completions" 
   
   observeEvent(input$submit_prompt_ora_btn, {
     
-    user_prompt <- input$user_prompt_ora
+    user_prompt <- paste0("Do the overrepresentated genesets show specifity for:", input$user_prompt_ora, "-These are the enriched genesets: ", paste(cache$enrichData$result$term_name, collapse = ", "))
     output$llm_response_ora <- renderText("Generating response, please wait...")
     shinyjs::runjs("$('#llm_response_ora').text('Generating response, please wait...');")
-
-    # Check if the Ollama server is running
-    if (con_test$status_code != 200) {
-      output$llm_response_ora <- renderText("Ollama server is not running. Please start the Ollama app.")
-      return()
+    
+    #print(user_prompt)  
+    
+    # ####using ollama
+    # # Check if the Ollama server is running
+    # if (con_test$status_code != 200) {
+    #   output$llm_response_ora <- renderText("Ollama server is not running. Please start the Ollama app.")
+    #   return()
+    # }
+    # 
+    # # Generate response
+    # response_to_display <- generate("tinyllama", user_prompt, output = "text")
+    # #####
+    
+    
+    ####Using openaiAPI
+    
+    data <- jsonlite::toJSON(list(
+      model = "gpt-4o-mini",  # Specify the model you want to use (e.g., "gpt-3.5-turbo" or "davinci")
+      messages = list(
+        list(role = "user", content = user_prompt)
+      ),
+      max_tokens = 1000
+    ), auto_unbox = TRUE)
+    
+    response <- httr::POST(
+      url,
+      httr::add_headers(
+        Authorization = paste("Bearer", api_key),
+        `Content-Type` = "application/json"
+      ),
+      body = data,
+      encode = "json"
+    )
+    
+    print(response)
+    
+    # Check the response status
+    if (httr::status_code(response) == 200) {
+      # Parse the response
+      content <- httr::content(response, as = "text", encoding = "UTF-8")
+      parsed_content <- jsonlite::fromJSON(content)
+      
+      print("Total tokens:")
+      print(parsed_content$usage$total_tokens)
+      
+      response_to_display <- parsed_content$choices$message$content
+      # Extract and print the response text
+      #cat("Response from OpenAI:\n")
+      #cat(parsed_content$choices$message$content, "\n")
+    } else {
+      # Print an error message if the request fails
+      cat("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
+      response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
     }
-    # Generate response
-    response <- generate("tinyllama", user_prompt, output = "text")
-
+    
+    #####
     output$llm_response_ora <- renderText({
-      response
+      response_to_display
     })
   })
  
+  observeEvent(input$submit_prompt_gsea_btn, {
+    
+    user_prompt <- paste0("Do the enriched genesets show specifity for:", 
+                          input$user_prompt_gsea, 
+                          "-These are the enriched genesets: ", 
+                          paste(cache_gsea$comb_gsea_res$pathway, collapse = ", "))
+    output$llm_response_gsea <- renderText("Generating response, please wait...")
+    shinyjs::runjs("$('#llm_response_gsea').text('Generating response, please wait...');")
+    
+    ####Using openaiAPI
+    
+    data <- jsonlite::toJSON(list(
+      model = "gpt-4o-mini",  # Specify the model you want to use (e.g., "gpt-3.5-turbo" or "davinci")
+      messages = list(
+        list(role = "user", content = user_prompt)
+      ),
+      max_tokens = 1000
+    ), auto_unbox = TRUE)
+    
+    response <- httr::POST(
+      url,
+      httr::add_headers(
+        Authorization = paste("Bearer", api_key),
+        `Content-Type` = "application/json"
+      ),
+      body = data,
+      encode = "json"
+    )
+    
+    print(response)
+    
+    # Check the response status
+    if (httr::status_code(response) == 200) {
+      # Parse the response
+      content <- httr::content(response, as = "text", encoding = "UTF-8")
+      parsed_content <- jsonlite::fromJSON(content)
+      
+      print("Total tokens:")
+      print(parsed_content$usage$total_tokens)
+      
+      response_to_display <- parsed_content$choices$message$content
+      # Extract and print the response text
+      #cat("Response from OpenAI:\n")
+      #cat(parsed_content$choices$message$content, "\n")
+    } else {
+      # Print an error message if the request fails
+      cat("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
+      response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
+    }
+    
+    #####
+    output$llm_response_gsea <- renderText({
+      response_to_display
+    })
+  })
   
   
   

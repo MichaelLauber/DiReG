@@ -11,14 +11,21 @@ library(ollamar)
 # resp_txt <- resp_process(resp, "text")   
 # resp_df <- resp_process(resp, "df")           
 # resp_text <- resp_df$response
-
-
+ 
+     
             
-fluidPage(
+fluidPage(        
             
   tags$head(
     #for fileinput in AME?
      tags$script(src = "load-example.js"),
+     
+     tags$style(HTML("
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    "))   
   ),
          
   includeCSS("css/style.css"),
@@ -36,11 +43,11 @@ fluidPage(
     footer = column(12, align="center", 
                         "DiReG-App 2024 (v1.0.0)",
                         ),
+    source("ui/ui_explore.R")$value,
     source("ui/ui_mining.R")$value,
-    source("ui/test_llm.R")$value,      
+       
     source("ui/ui_home.R")$value,
        
-    source("ui/ui_explore.R")$value,
        
       
     source("ui/ui_pred_ame.R")$value,

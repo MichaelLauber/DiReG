@@ -71,6 +71,7 @@
       sources = selectedSources,
       as_short_link = FALSE
     )
+
     
     # Render the enrichment plot
     output$enrichPlot <- renderPlotly({

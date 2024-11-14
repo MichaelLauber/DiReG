@@ -31,11 +31,14 @@ tabPanel("Signature Mining",
                                    hr(),
                                    hr(),
                                    div(
-                                     style = "margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;",
-                                     h3("Ask a LLM Question"),
-                                     textInput("user_prompt_ora","Type your question:", placeholder = "Are these Genesets specfic for ... cells"),
-                                     actionButton("submit_prompt_ora_btn", "Ask"),
-                                     verbatimTextOutput("llm_response_ora")
+                                     style = "margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 8px;",
+                                     div(
+                                       style = "display: flex; align-items: center; gap: 10px;",  # Flexbox layout
+                                       tags$label("Ask a LLM: Do the overrepresentated genesets show specifity for:", style = "margin: 0; white-space: nowrap; font-size: 20px;"),
+                                       textInput("user_prompt_ora", label = NULL, placeholder = "liver/beta/.. cells", width = "100%"),
+                                       actionButton("submit_prompt_ora_btn", "Ask")
+                                     ),
+                                       verbatimTextOutput("llm_response_ora")
                                    ),
                                    h3('Overrepresentation Analysis based on Dorothea Network', align="center"),
                                    div(
@@ -49,6 +52,16 @@ tabPanel("Signature Mining",
                   conditionalPanel('output.cond_gsea == "1"', 
                                    hr(),
                                    hr(),
+                                   div(
+                                     style = "margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 8px;",
+                                     div(
+                                       style = "display: flex; align-items: center; gap: 10px;",  # Flexbox layout
+                                       tags$label("Ask a LLM: Do the enriched genesets show specifity for:", style = "margin: 0; white-space: nowrap; font-size: 20px;"),
+                                       textInput("user_prompt_gsea", label = NULL, placeholder = "liver/beta/.. cells", width = "100%"),
+                                       actionButton("submit_prompt_gsea_btn", "Ask")
+                                     ),
+                                     verbatimTextOutput("llm_response_gsea")
+                                   ),
                                    h3('GSEA Analysis', align="center"),
                                    div(class="vw70",
                                        #plotOutput("plot_gsea"),

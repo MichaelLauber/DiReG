@@ -3,13 +3,17 @@ library(fgsea)
 previousNodesGSEA <- reactiveVal(NULL)
 cachedGeneSets <- reactiveValues(human = NULL, murine = NULL)
 cachedResGseaDT <- reactiveValues(gsea_res_DTs  = NULL)
+#comb_gsea_res <- reactiveVal(NULL)
 
+cache_gsea <- reactiveValues(
+  comb_gsea_res = NULL
+)
 
 loadGeneSets <- function(organism) {
   if (organism == "human") {
     if (is.null(cachedGeneSets$human)) {
       humanFiles <- list(
-        Hallmark_Genesets  = file.path("data", "h.all.v2023.1.Hs.symbols.gmt"),
+        H_Hallmark_Genesets  = file.path("data", "h.all.v2023.1.Hs.symbols.gmt"),
         C2_Curated_Genesets = file.path("data", "c2.cp.v2023.1.Hs.symbols.gmt"),
         C5_Ontology_Genesets  = file.path("data", "c5.go.v2023.1.Hs.symbols.gmt"),
         C8_CellType_signature_Genesets = file.path("data", "c8.all.v2023.1.Hs.symbols.gmt")
@@ -20,10 +24,10 @@ loadGeneSets <- function(organism) {
   } else {
     if (is.null(cachedGeneSets$murine)) {
       murineFiles <- list(
-        Hallmark_Genesets = file.path("data", "mh.all.v2023.1.Mm.symbols.gmt"),
-        C2_Curated_Genesets = file.path("data", "m2.cp.v2023.1.Mm.symbols.gmt"),
-        C5_Ontology_Genesets = file.path("data", "m5.go.v2023.1.Mm.symbols.gmt"),
-        C8_CellType_signature_Genesets = file.path("data", "m8.all.v2023.1.Mm.symbols.gmt")
+        M_Hallmark_Genesets = file.path("data", "mh.all.v2023.1.Mm.symbols.gmt"),
+        M2_Curated_Genesets = file.path("data", "m2.cp.v2023.1.Mm.symbols.gmt"),
+        M5_Ontology_Genesets = file.path("data", "m5.go.v2023.1.Mm.symbols.gmt"),
+        M8_CellType_signature_Genesets = file.path("data", "m8.all.v2023.1.Mm.symbols.gmt")
       )
       cachedGeneSets$murine <- lapply(murineFiles, fgsea::gmtPathways)
     }
@@ -82,6 +86,9 @@ observeEvent(input$btnGSEA, {
         dplyr::mutate(padj = round(padj, 5), NES = round(NES, 2))
     })
     
+    ###!!!!
+    cache_gsea$comb_gsea_res <- do.call(rbind,gsea_res_DTs)
+    print(paste(cache_gsea$comb_gsea_res$pathway, collapse = ", "))
     
     cachedResGseaDT$gsea_res_DTs <- gsea_res_DTs
     
