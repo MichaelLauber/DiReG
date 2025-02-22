@@ -93,7 +93,7 @@ observeEvent(input$btnGSEA, {
     cachedResGseaDT$gsea_res_DTs <- gsea_res_DTs
     
     gseaDTs <- lapply(gsea_res_DTs, function(dt){
-      dt %>% select("pathway","padj", "NES", "leadingEdge")} )
+      dt %>% dplyr::select("pathway","padj", "NES", "leadingEdge")} )
     
     
     plots <- lapply(fgsea_results, function(res) {

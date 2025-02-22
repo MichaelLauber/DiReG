@@ -1,17 +1,17 @@
-
-## dorothea
-
 library(decoupleR)
+
 dorothea_hs <- readRDS("data/dorothea_hs.rds")
 dorothea_mm <- readRDS("data/dorothea_mm.rds")
 
-
+networkCreated <- FALSE
+btnCreateDoroPressed <- reactiveVal(FALSE)
+dropdownSelected <- reactiveVal(FALSE) # checks if the network should be ristricted to a selected TF
 
 dorothea <- reactive({
   switch(input$radioOrgDorothea,
          "human" = dorothea_hs,
          "mouse" = dorothea_mm)
-})
+}) 
 
 organism <- reactive({
   switch(input$radioOrgDorothea,
@@ -23,30 +23,26 @@ organism <- reactive({
 data <- reactive({
   dorothea() %>%
     filter(confidence %in% input$checkConfidence) %>%
-    rename(from = source, to = target) %>%
-    select(from, to, mor, confidence)
+    dplyr::rename("from" = "source", "to" = "target") %>%
+    dplyr::select(from, to, mor, confidence)
 })
 
-
-networkCreated <- FALSE
-
-btnCreateDoroPressed <- reactiveVal(FALSE)
-
 inputTFs <- eventReactive(input$btnCreateDoro, {
+  
   networkCreated <<- TRUE
   btnCreateDoroPressed(TRUE)
   cond_visnet(0)
   shinyjs::runjs(sprintf('window.cond_visnet = "%s"', cond_visnet()))
-  
-  split_result <- stringr::str_split(input$inputTextTFs, "[,;\\s]+") %>%  unlist()
+  raw_input <- input$inputTextTFs
+  split_result <- stringr::str_split(raw_input, "[,;\\s]+") %>%  unlist()
   processed_input <- split_result[split_result != ""]
-
+  
   gprofiler2::gconvert(query = processed_input,
-                       organism = organism(), 
-                       target="ENSG", 
-                       mthreshold = Inf, 
-                       filter_na = FALSE) %>% 
-    dplyr::distinct(input, .keep_all = TRUE) %>% 
+                       organism = organism(),
+                       target="ENSG", # ifelse(organism() == "mmusculus", "ENSMUSG", "ENSG")
+                       mthreshold = Inf,
+                       filter_na = FALSE) %>%
+    dplyr::distinct(`input`, .keep_all = TRUE) %>%
     dplyr::mutate(output = case_when(
       is.na(name) ~ processed_input,
       TRUE ~ name
@@ -54,24 +50,9 @@ inputTFs <- eventReactive(input$btnCreateDoro, {
     dplyr::pull(output)
 })
 
-
-
-
-observe({
-  print("changed_observed")
-  print(btnCreateDoroPressed)
-  print(networkCreated)
-  
-  visNetworkProxy("visNet_dorothea") %>% 
-    visSetData(nodes=nodes(), edges=edges())
-})  
-
-
 allTFs <- reactive({
   unique(dorothea()$source)
 })
-
-dropdownSelected <- reactiveVal(FALSE)
 
 observe({
   if (!is.null(input$selectTF)) {
@@ -79,12 +60,16 @@ observe({
   }
 })
 
+observe({
+  visNetworkProxy("visNet_dorothea") %>%
+    visSetData(nodes=nodes(), edges=edges())
+})
 
 edges <- reactive({
+  req(inputTFs())
   
   if(dropdownSelected()){
     select_edges <- data()$from %in% input$selectTF
-    print(input$selectTF)
     edges1 <- data()[select_edges,]
   } else {
     select_edges <- data()$from %in% inputTFs()
@@ -100,7 +85,6 @@ edges <- reactive({
       )
     })
   }
-  
   
   if(input$sliderDegDorothea %in% c(2,3)){
     
@@ -120,6 +104,7 @@ edges <- reactive({
   } else {
     edges <- edges1
   }
+
   
   nrEdges <- dim(edges)[1]
   if(nrEdges >100){
@@ -134,7 +119,6 @@ edges <- reactive({
   edges$title <- glue::glue("confidence score: {edges$confidence}")
   edges$label <- glue::glue("{edges$confidence}")
   edges$dashes <- !(edges$from %in% inputTFs())
-  edges$width <- 2
   edges$width <- abs(edges$mor)*1.5
   edges$color <- sapply(edges$mor, function(x) {
     switch(as.character(x),
@@ -144,9 +128,9 @@ edges <- reactive({
   edges
 })
 
-
-
 nodes <- reactive({
+  req(edges())
+  
   nodes_subset <- unique(c(edges()$from, edges()$to))
   isTF <- nodes_subset %in% allTFs()
   group <- ifelse(isTF, "TF", "Target")
@@ -182,11 +166,7 @@ edgeLabel <- reactive({
   rbind(edgeLabelDeg,edgeLabelColor)
 })
 
-
-
 output$visNet_dorothea <- renderVisNetwork({
-  
-  print(inputTFs())
   
   # for debugging TfsSelection can be replace by inputTF()
   TfsSelection <-  inputTFs()[inputTFs() %in% nodes()$id]
@@ -246,6 +226,7 @@ output$visNet_dorothea <- renderVisNetwork({
     visPhysics(stabilization = FALSE)
   
 })
+
 
 # download dorothea network as csv file
 output$btnDownloadDorothea <- downloadHandler(

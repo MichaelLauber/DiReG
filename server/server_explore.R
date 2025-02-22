@@ -1,68 +1,57 @@
-#updates input in explore tab
+all_infered_protocols <- read.csv(file.path("data","all_inferred_protocols.csv"))
+
+
 observe({
-  startcell <- input$selectStart
-  updateSelectInput(session, "selectTarget",
-                    choices = getTargetCells(startcell, reprogramming_protocols))
+  input$checkGroupTools
+  updateSelectInput(session, "selectStart_infered",
+                    choices = updateStartCellInferred(input$checkGroupTools))
 })
 
-
-# prints Table of known protocols on explore page
-observeEvent(input$selectTarget, {
-  req(input$selectTarget)
-  shinyjs::show(id="dt_protocols")
+#update target cell when startcell was selected
+observe({
+  startcell <- input$selectStart_infered
   
-  startcell <- input$selectStart
-  targetcell <- input$selectTarget
+  protocols <- all_infered_protocols %>%
+    filter(Method %in% input$checkGroupTools)
   
-  output$header_shown_protocols <- renderUI({
-    tags$h4(HTML(paste(startcell, " -> ", targetcell)), align="center")
-  })
-
-  output$dt_validated_protocols <- renderDT({
-    datatable(getProtocols(startcell, targetcell, input$radioExplore), selection = 'single', escape = FALSE)
-  })
-  
-  output$info_validated_protocols <- renderText("click on a set of TFs for exploration through the Signature Mining procedure")
+  updateSelectInput(session, "selectTarget_infered",
+                    choices = getTargetCells(startcell, protocols))
 })
 
+#render table when start and targetcell where chosen
+observe( {
+  req(input$selectTarget_infered)
 
-getProtocols <- function(start, target, organism="both", protocol = reprogramming_protocols){
-
-  if(organism == "both"){
-    dt <- protocol %>%
-      filter(Start == start & Target == target) %>%
-      select(Organism, Protocol, Ref)
-  } else {
-    dt <- protocol %>%
-      filter(Start == start & Target == target & Organism %in% organism) %>%
-      select(Organism, Protocol, Ref)
-  }
-  
-  dt$Ref <- sapply(dt$Ref, function(link) {
-    as.character(tags$a(href = link, target = "_blank", link))
+  output$dt_inferred_protocols <- renderDT({
+    getInferredProtocols(input$selectStart_infered, input$selectTarget_infered, input$checkGroupTools)
   })
   
-  dt
+})
+
+getInferredProtocols <- function(start, target, tools, protocol = all_infered_protocols){
+  protocol %>%
+    filter(Start == start & Target == target, Method %in% tools)
 }
 
-#updates the input TFs and organism within signature mining, executes btnCreateDoro and switches the tab
-observeEvent(input$dt_validated_protocols_cell_clicked, {
-  if(length(input$dt_validated_protocols_cell_clicked) > 0){
-    info <- input$dt_validated_protocols_cell_clicked
+
+
+updateStartCellInferred <- function(tools){
+  startCells <- all_infered_protocols %>%
+    filter(Method %in% tools) %>%
+    dplyr::select(Start) %>% 
+    unique()
+  
+  createChoices(startCells)
+}
+
+observeEvent(input$dt_inferred_protocols_cell_clicked, {
+  if(length(input$dt_inferred_protocols_cell_clicked) > 0){
+    info <- input$dt_inferred_protocols_cell_clicked
     
     # change here if input table gets changed
-    if(info$col ==2 ){
+    if(info$col == 4 ){
       
-      displayed_protocols <- getProtocols(input$selectStart, input$selectTarget, input$radioExplore)
-      
-      organism_of_TFset <- displayed_protocols[info$row,] %>% 
-        pull(Organism)
-      
-      organism_of_TFset <- ifelse(organism_of_TFset == "human", "human", "mouse")
-      
-      updateRadioButtons(session, "radioOrgDorothea",
-                         selected = organism_of_TFset)
-      
+      displayed_inf_protocols <- getInferredProtocols(input$selectStart_infered, input$selectTarget_infered, input$checkGroupTools)
       
       clicked_TFs <-  stringr::str_split(info$value, "\\|") %>% unlist()
       clicked_TFs_string <- paste(clicked_TFs, collapse = " ")

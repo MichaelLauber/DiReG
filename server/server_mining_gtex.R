@@ -32,7 +32,7 @@ observeEvent(input$btnGTEx, ({
     
     gene_name <- ensg_to_hgnc %>%
       filter(HGNC == symbols[i]) %>%
-      select(ENSG)
+      dplyr::select(ENSG)
     
     filename <- paste0(gene_name, ".rds")
     
