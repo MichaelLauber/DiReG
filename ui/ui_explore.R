@@ -31,19 +31,20 @@ tabPanel(
       
       conditionalPanel(
         'output.cond_exploreExp == "1"',
-        startcellSelection("selectStart", "Start Cell", startInputList),
-        targetcellSelection('selectTarget', 'Target Cell'),
-        radioButtons(
-          "radioExplore",
-          "Organism",
-          inline = TRUE,
-          choices = list(
-            "Mouse" = "mouse",
-            "Human" = "human",
-            "Both" = "both"
-          ),
-          selected = "both"
-        )
+        h4("Explore existing literature via RAG"),
+            textAreaInput("user_prompt_explore", label = NULL,
+                          placeholder = "Type your question",
+                          width = "100%", height = "150px"), # Adjust the height to display more lines
+            tags$style(HTML("
+            #user_prompt_explore {
+                font-size: 1em; /* Adjust font size if needed */
+                line-height: 1.5em; /* Line spacing for readability */
+                white-space: pre-wrap; /* Allows the placeholder to wrap naturally */
+            }
+        ")),
+            actionButton("explore_prompt_btn", "Ask"),
+            actionButton("explore_example_btn", "Example"),
+            verbatimTextOutput("api_response_output")
       ), 
       
       conditionalPanel('output.cond_exploreComp == "1"',
@@ -57,7 +58,7 @@ tabPanel(
                                           choices = list("Mogrify" = "Mogrify",
                                                          "JSD"= "JSD",
                                                          "Taiji" = "Taiji",
-                                                         #"IRENE" = "irene",
+                                                         "IRENE" = "IRENE",
                                                          "CellNet" = "CellNet"
                                           ),
                                           selected = c("Mogrify"))
@@ -86,7 +87,8 @@ tabPanel(
                          # "25 from", a("Cellnet", href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4291075/"), br(),
                          # "25k from", a("Taiji", href="https://academic.oup.com/nargab/article/3/4/lqab100/6423166"), "(Arrow indicates up/down regualtion)"
                          "230 predictions from", a("Mogrify,", href="https://www.nature.com/articles/ng.3487"), 
-                         "225 from",  a("Alessio et al.", href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4649293/"), "(Here refred as JSD),", 
+                         "225 from",  a("Alessio et al.", href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4649293/"), "(Here refred as JSD),",
+                         "317 from",  a("IRENE", href="https://www.nature.com/articles/s41467-021-21801-4"), ", ",
                          "25 from", a("Cellnet", href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4291075/"), ", ",
                          "25k from", a("Taiji", href="https://academic.oup.com/nargab/article/3/4/lqab100/6423166"), "(Arrow indicates up/down regualtion)"
                          )

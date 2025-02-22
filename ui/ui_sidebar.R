@@ -25,6 +25,22 @@ div(
     class = "action-btn-custom" 
   ),
   shinyWidgets::actionBttn(
+    "btnTfcof",
+    label = "TF Cofactors",
+    style = "simple",
+    color = "primary",
+    size = "md",
+    class = "action-btn-custom" 
+  ),
+  shinyWidgets::actionBttn(
+    "btnTFTF",
+    label = "TF-TF Interactions",
+    style = "simple",
+    color = "primary",
+    size = "md",
+    class = "action-btn-custom" 
+  ),
+  shinyWidgets::actionBttn(
     "btnIsoforms",
     label = "Isoform Potential",
     style = "simple",

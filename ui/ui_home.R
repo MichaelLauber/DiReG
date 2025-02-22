@@ -4,7 +4,7 @@ tabPanel("Home",
              style = "display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; height: calc(100vh - 150px); overflow: auto; text-align: center;",
              
              h1("Welcome to DiReG"),
-             h4("DiReG was developed for wetlab and computational biologist working on directed reprogramming approaches", align = "center", style = "font-weight: bold;; font-size: 2vw; margin: 0.5vw;" ),
+             h4("An App developed for Scientists working on Direct Reprogramming", align = "center", style = "font-weight: bold;; font-size: 2vw; margin: 0.5vw;" ),
              
              img(src='DALLE.png', align = "center", class="img", style="max-width: 23%; height: auto; margin: auto; display: block;"),
              

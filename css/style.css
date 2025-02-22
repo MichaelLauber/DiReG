@@ -1,3 +1,11 @@
+.clickableCell:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+  transition: transform 0.3s ease; 
+  color: blue;
+  text-decoration: underline;
+}
+
 #dt_validated_protocols table.dataTable tbody td:nth-child(3):hover,
 #dt_validated_protocols table.dataTable tbody td:nth-child(4):hover {
         transform: scale(1.1);

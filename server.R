@@ -1,42 +1,68 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-  
-  
-# Define server logic required to draw a histogram
 function(input, output, session) {
   
-  con_test <- test_connection()
-  
+  options(shiny.error = browser)   
+
+   
   # Set your API key
   api_key <- "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"
   
   # Define the API endpoint
   url <- "https://api.openai.com/v1/chat/completions" 
   
+  
+  ### server_explore 
+  
+  example_question <- "How can I differentiate Pancreatic duct cells into beta cells? Which transcription factors are necessary?"
+
+  # Load example question when the Example button is pressed
+  observeEvent(input$explore_example_btn, {
+    print("Example Pressed")
+    updateTextAreaInput(session, "user_prompt_explore", value = example_question)
+  })
+
+  observeEvent(input$explore_prompt_btn, {
+    print("Ask Pressed")
+    # Get the user question from the text area input
+    user_question <- input$user_prompt_explore
+    print("sending user question")
+    
+    shinyjs::runjs("$('#api_response_output').text('Generating response, please wait...');")
+    
+    # Only proceed if user question is not empty
+    if (nzchar(user_question)) {
+      # Send POST request to the API
+      response <- httr::POST(
+        url = "http://localhost:8000/process_query",
+        body = list(question = user_question),
+        encode = "json"
+      )
+
+      # Parse the response and update the output text area
+      if (response$status_code == 200) {
+        result <- httr::content(response)$result
+        print(result)
+        output$api_response_output <- renderText({ result })
+      } else {
+        error_message <- paste("An error occurred. Status code:", response$status_code)
+        print(error_message)
+        output$api_response_output <- renderText({ error_message })
+      }
+    } else {
+      # If the input is empty, prompt the user to enter a question
+      output$api_response_output <- renderText("Please enter a question.")
+    }
+  })
+  
+  
+  
+   
+  #place in server_mining_ora
+  
   observeEvent(input$submit_prompt_ora_btn, {
     
     user_prompt <- paste0("Do the overrepresentated genesets show specifity for:", input$user_prompt_ora, "-These are the enriched genesets: ", paste(cache$enrichData$result$term_name, collapse = ", "))
     output$llm_response_ora <- renderText("Generating response, please wait...")
     shinyjs::runjs("$('#llm_response_ora').text('Generating response, please wait...');")
-    
-    #print(user_prompt)  
-    
-    # ####using ollama
-    # # Check if the Ollama server is running
-    # if (con_test$status_code != 200) {
-    #   output$llm_response_ora <- renderText("Ollama server is not running. Please start the Ollama app.")
-    #   return()
-    # }
-    # 
-    # # Generate response
-    # response_to_display <- generate("tinyllama", user_prompt, output = "text")
-    # #####
     
     
     ####Using openaiAPI
@@ -57,7 +83,7 @@ function(input, output, session) {
       ),
       body = data,
       encode = "json"
-    )
+    )  
     
     print(response)
     
@@ -84,8 +110,9 @@ function(input, output, session) {
     output$llm_response_ora <- renderText({
       response_to_display
     })
-  })
+  })  
  
+  #place in server_mining_gsea
   observeEvent(input$submit_prompt_gsea_btn, {
     
     user_prompt <- paste0("Do the enriched genesets show specifity for:", 
@@ -166,19 +193,21 @@ function(input, output, session) {
     cond_ora(0)
     cond_gsea(0)
     cond_gtex(0)
+    cond_tfcof(0)
+    cond_tftf(0)
     cond_isoforms(0)
     cond_tfa(0)
-  }
+  }   
   
   
   resetBtns <- function(){
-    btn_ids <- c("btnORA", "btnGSEA", "btnGTEx", "btnIsoforms", "btnTFA")
+    btn_ids <- c("btnORA", "btnGSEA", "btnGTEx", "btnTfcof", "btnTFTF", "btnIsoforms", "btnTFA")
     for (btn_id in btn_ids) {
       shinyjs::runjs(sprintf("document.getElementById('%s').classList.remove('bttn-success')", btn_id))
       shinyjs::runjs(sprintf("document.getElementById('%s').classList.add('bttn-primary')", btn_id))
     }
   }
-  
+    
   handleButtonClick <- function(buttonId, conditionSetter) {
     observeEvent(input[[buttonId]], {
       
@@ -202,16 +231,20 @@ function(input, output, session) {
     shinyjs::toggle(id = "expandButtonContainer", condition = FALSE)  # Hide the button container
   })
  
-
+ 
   cond_ora <- reactiveVal(0)
   cond_gsea <- reactiveVal(0)
   cond_gtex <- reactiveVal(0)
+  cond_tfcof <- reactiveVal(0)
+  cond_tftf <- reactiveVal(0)
   cond_isoforms <- reactiveVal(0)
   cond_tfa <- reactiveVal(0)
 
   handleButtonClick("btnORA", cond_ora)
   handleButtonClick("btnGSEA", cond_gsea)
   handleButtonClick("btnGTEx", cond_gtex)
+  handleButtonClick("btnTfcof", cond_tfcof)
+  handleButtonClick("btnTFTF", cond_tftf)
   handleButtonClick("btnIsoforms", cond_isoforms)
   handleButtonClick("btnTFA", cond_tfa)
   
@@ -219,6 +252,8 @@ function(input, output, session) {
   output$cond_ora = renderText({cond_ora()})
   output$cond_gsea = renderText({cond_gsea()})
   output$cond_gtex = renderText({cond_gtex()})
+  output$cond_tfcof = renderText({cond_tfcof()})
+  output$cond_tftf = renderText({cond_tftf()})
   output$cond_isoforms = renderText({cond_isoforms()})
   output$cond_tfa = renderText({cond_tfa()})
 
@@ -229,12 +264,14 @@ function(input, output, session) {
   outputOptions(output, 'cond_ora', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_gsea', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_gtex', suspendWhenHidden=FALSE)
+  outputOptions(output, 'cond_tfcof', suspendWhenHidden=FALSE)
+  outputOptions(output, 'cond_tftf', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_isoforms', suspendWhenHidden=FALSE)
   outputOptions(output, 'cond_tfa', suspendWhenHidden=FALSE)
 
   #### End Mining
   
-  
+   
   ##Explore
   
   cond_exploreExp <- reactiveVal(1)
@@ -258,82 +295,27 @@ function(input, output, session) {
   ) 
       
  
-   
-   
+             
+     
   source("server/server_explore.R", local=T)
-  source("server/server_mining.R", local=T)
   source("server/server_discovery.R", local=T)     
   source("server/server_doc.R", local=T)
+    
+  source("utils/utils_enrichment.R") 
+  source("server/server_mining_network.R", local=T)
+  source("server/server_mining_ora.R", local=T)
+  source("server/server_mining_gsea.R", local=T)
+  source("server/server_mining_gtex.R", local=T)
+  source("server/server_mining_tfcof.R", local=T)
+  source("server/server_mining_tftf.R", local=T)
+  source("server/server_mining_isoform.R", local=T)
+  source("server/server_mining_tfa.R", local=T)
+  
+  #remove after debugging
+  shinyjs::runjs("$(document).ready(function() { $('#btnCreateDoro').click(); });")
+  
+    
    
-  
-  # Documentation
-  
-  # activeButton <- reactiveVal(NULL)
-  # 
-  # # When actnBtnSignature is clicked, show the tabsetPanel
-  # observeEvent(input$actnBtnSignature, {
-  #   activeButton("actnBtnSignature")
-  #   output$tabsetOutput <- renderUI({
-  #     tabsetPanel(
-  #       tabPanel("OR Analysis", source("doc/doc_ORA.R", local=T)),
-  #       tabPanel("GSEA", source("doc/doc_GSEA.R", local=T)),
-  #       tabPanel("GTex Tissue Expression", source("doc/doc_GTEx.R", local=T)),
-  #       tabPanel("Isoform Potential", source("doc/doc_isoform.R", local=T)),
-  #       tabPanel("TFA Analysis", source("doc/doc_TFA.R", local=T))
-  #     )
-  #   })
-  # })
-  #  
-  # # When actnBtnExplore is clicked, update uiOutput with different text
-  # observeEvent(input$actnBtnExplore, {
-  #   activeButton("actnBtnExplore")
-  #   output$sectionContent <- renderUI({
-  #     source("doc/doc_explore.R", local=T)
-  #   })
-  #   output$tabsetOutput <- NULL
-  # })
-  #  
-  # # When actnBtnDiscovery is clicked, update uiOutput with different text
-  # observeEvent(input$actnBtnDiscovery, {
-  #   activeButton("actnBtnDiscovery")
-  #   output$sectionContent <- renderUI({
-  #     source("doc/doc_discovery.R", local=T)
-  #     # You can replace this with the content you want to display
-  #   })
-  #   output$tabsetOutput <- NULL
-  # })
-  
-  
-  # mock_data <- data.frame(
-  #   Donor_Cell = c("Cell Type A", "Cell Type B", "Cell Type C", "Cell Type D", "Cell Type E",
-  #                  "Cell Type F", "Cell Type G", "Cell Type H", "Cell Type I", "Cell Type J",
-  #                  "Cell Type A", "Cell Type B", "Cell Type C", "Cell Type D", "Cell Type E",
-  #                  "Cell Type F", "Cell Type G", "Cell Type H", "Cell Type I", "Cell Type J"),
-  #   Target_Cell = c("Cell Type X", "Cell Type Y", "Cell Type Z", "Cell Type W", "Cell Type V",
-  #                   "Cell Type U", "Cell Type T", "Cell Type S", "Cell Type R", "Cell Type Q",
-  #                   "Cell Type X", "Cell Type Y", "Cell Type Z", "Cell Type W", "Cell Type V",
-  #                   "Cell Type U", "Cell Type T", "Cell Type S", "Cell Type R", "Cell Type Q"),
-  #   Title = c("Study 1", "Study 2", "Study 3", "Study 4", "Study 5",
-  #             "Study 6", "Study 7", "Study 8", "Study 9", "Study 10",
-  #             "Study 11", "Study 12", "Study 13", "Study 14", "Study 15",
-  #             "Study 16", "Study 17", "Study 18", "Study 19", "Study 20"),
-  #   Journal = c("Journal A", "Journal B", "Journal C", "Journal D", "Journal E",
-  #               "Journal F", "Journal G", "Journal H", "Journal I", "Journal J",
-  #               "Journal A", "Journal B", "Journal C", "Journal D", "Journal E",
-  #               "Journal F", "Journal G", "Journal H", "Journal I", "Journal J"),
-  #   Year = c(2020, 2019, 2022, 2018, 2021,
-  #            2017, 2016, 2015, 2023, 2014,
-  #            2020, 2019, 2022, 2018, 2021,
-  #            2017, 2016, 2015, 2023, 2014)
-  # )
-  # 
-  # # Render the table within the specified div
-  # output$mockTable <- renderDT({
-  #   datatable(mock_data, options = list(dom = 't'))
-  # })
-
-
-                
 } 
   
 

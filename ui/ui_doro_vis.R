@@ -31,6 +31,12 @@ fluidRow(
                     Analysis is performed on gene sets from (<a href='https://www.gsea-msigdb.org/gsea/msigdb' target='_blank'>MigSigDB.</a>); TFs, interaction with higher confidence, 
                     and genes more closely regulated by the input TF get a higher rank.")),
             p(HTML("<strong>GTEx Tissue Expression:</strong> Explore the expression of input TFs in different tissues based on (<a href='https://gtexportal.org/home/' target='_blank'>GTEx data</a>).")),
+            
+            p(HTML("<strong>TF Cofactors:</strong> Explore with your Input TFs interacting Cofactors  (<a href='https://academic.oup.com/nar/article/45/D1/D145/2333914' target='_blank'>Schemeier et al.</a>).")),
+            
+            p(HTML("<strong>TF TF Interactions:</strong> Find Interacting TFs based on PPI Data .")),
+            
+            
             p(HTML("<strong>Isoform Potential:</strong> Learn about the potential of the different isoforms of the input TFs to induce differentiations in hESC. 
                     Data is based on a publication from (<a href='https://www.cell.com/cell/pdf/S0092-8674(22)01470-2.pdf' target='_blank'>Joung et al.</a>) 
                     and measured via pseudotime (diffusion/RNA velocity) upon expression of isoform in hESC.")),

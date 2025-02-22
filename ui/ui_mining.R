@@ -26,7 +26,7 @@ tabPanel("Signature Mining",
                    
                   source("ui/ui_doro_vis.R")$value,
                   
-                  
+                  # put conditional panels in a separate script !!!
                   conditionalPanel('output.cond_ora == "1"',
                                    hr(),
                                    hr(),
@@ -77,8 +77,19 @@ tabPanel("Signature Mining",
                                    hr(),
                                    h3('GTEx Analysis', align="center"),
                                    div(class="vw70", uiOutput("carousel"))
-                  ),  
-                  
+                  ),
+                  conditionalPanel('output.cond_tfcof == "1"', 
+                                   hr(),
+                                   hr(),
+                                   h3('TF Cofactors', align="center"),
+                                   div(class="vw70", uiOutput("carousel_tfcof"))
+                  ),
+                  conditionalPanel('output.cond_tftf == "1"', 
+                                   hr(),
+                                   hr(),
+                                   h3('TF-TF Interactions', align="center"),
+                                   div(class="vw70", uiOutput("carousel_tftf"))
+                  ),
                   conditionalPanel('output.cond_isoforms == "1"', 
                                    hr(),
                                    hr(),

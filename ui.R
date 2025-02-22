@@ -3,18 +3,9 @@ library(visNetwork)
 library(plotly)
 library(DT)
 library(shinyglide) 
-library(ollamar)    
-    
-#test_connection() 
-#list_models()                     
-# resp <- generate("tinyllama", "tell me a 5-word story") 
-# resp_txt <- resp_process(resp, "text")   
-# resp_df <- resp_process(resp, "df")           
-# resp_text <- resp_df$response
- 
-     
-            
-fluidPage(        
+           
+                 
+fluidPage(         
             
   tags$head(
     #for fileinput in AME?
@@ -26,7 +17,7 @@ fluidPage(
         word-break: break-word;
       }
     "))   
-  ),
+  ), 
          
   includeCSS("css/style.css"),
   waiter::use_waiter(),
@@ -43,19 +34,16 @@ fluidPage(
     footer = column(12, align="center", 
                         "DiReG-App 2024 (v1.0.0)",
                         ),
-    source("ui/ui_explore.R")$value,
-    source("ui/ui_mining.R")$value,
-       
+    source("ui/ui_mining.R")$value,         
+    source("ui/ui_explore.R")$value,              
     source("ui/ui_home.R")$value,
-       
-       
       
     source("ui/ui_pred_ame.R")$value,
     
     source("ui/ui_documentation.R")$value,
-     
-       
-    hr()
-  )     
-                          
+          
+        
+    hr()  
+  )        
+                            
 )  
