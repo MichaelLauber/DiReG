@@ -1,17 +1,19 @@
 library(slickR)
-library(org.Hs.eg.db)  # Use `org.Mm.eg.db` for Mouse
-library(org.Mm.eg.db)  # Use `org.Mm.eg.db` for Mouse
+library(org.Hs.eg.db)  
+library(org.Mm.eg.db)  
 library(AnnotationDbi)
 
 ensg_to_hgnc <- readRDS("data/ensg_to_hgnc.rds")
 mapping <- readRDS("data/gtex_mapping.rds")
 
-tfcof_interaction_hs <- readRDS("data/gene_tf_interactions_human_annotated_small.rds")
-tfcof_interaction_mm <- readRDS("data/gene_tf_interactions_mouse_annotated_small.rds")
+sub_cols <- c("detection_method", "pub_id", "uniprot_A_list", "uniprot_B_list")
+
+tftf_interacton_hs <- readRDS("data/human_tf_tf_interactions.rds") %>% dplyr::select(sub_cols)
+tftf_interaction_mm <- readRDS("data/mouse_tf_tf_interactions.rds") %>% dplyr::select(sub_cols)
 
 # Create content for the carousel
 
-previousTfcofInputTFs <- reactiveVal(NULL)
+previousTftfInputTFs <- reactiveVal(NULL)
 
 observeEvent(input$btnTFTF, ({
   
@@ -30,17 +32,17 @@ observeEvent(input$btnTFTF, ({
   
   
   if(organism() == "hsapiens"){
-    tfcof_df <- tfcof_interaction_hs
+    tftf_df <- tftf_interacton_hs
     orgDB <- org.Hs.eg.db
   } else {
-    tfcof_df <- tfcof_interaction_mm
+    tftf_df <- tftf_interaction_mm
     orgDB <- org.Mm.eg.db
   }
   
   
   currentTFs <- inputTFs()
   
-  if (identical(currentTFs, previousTfcofInputTFs())) {
+  if (identical(currentTFs, previousTftfInputTFs())) {
     print("same input TFs")
     return()
   }
@@ -49,12 +51,41 @@ observeEvent(input$btnTFTF, ({
   #symbols <- c("HNF1A", "FOXP3")
   nrFigs <- length(symbols)
   
-  tfcof_df <- tfcof_df %>%
-    mutate(TF_list = if_else(isTF_A, uniprot_A_list, uniprot_B_list))
+ 
+  get_symbol_from_uniprot <- function(uniprot_ids, org_db = orgDB) {
+    # 1) Coerce 'uniprot_ids' to a character vector
+    if (is.list(uniprot_ids)) {
+      uniprot_ids <- unlist(uniprot_ids, use.names = FALSE)
+    }
+    uniprot_ids <- as.character(uniprot_ids)
+    
+    # 2) If 'uniprot_ids' is empty, return NA
+    if (length(uniprot_ids) == 0) {
+      return(NA_character_)
+    }
+    
+    # 3) Check each UniProt ID in order, returning the first match
+    for (uid in uniprot_ids) {
+      symbol <- suppressMessages(
+        AnnotationDbi::mapIds(
+        org_db,
+        keys = uid,
+        keytype = "UNIPROT",
+        column = "SYMBOL",
+        multiVals = "first"
+      )
+      )
+      # If 'symbol' is not NULL or NA, it's a successful match
+      if (!is.null(symbol) && !is.na(symbol)) {
+        return(symbol)
+      }
+    }
+    
+    # 4) If no matches were found, return NA
+    return(NA_character_)
+  }
   
-  tfcof_df <- tfcof_df %>%
-    mutate(TcoF_list = if_else(isTF_A, uniprot_B_list, uniprot_A_list))
-  
+
   uniprot_ids <- mapIds(orgDB,
                         keys = symbols,
                         keytype = "SYMBOL",
@@ -66,30 +97,39 @@ observeEvent(input$btnTFTF, ({
   result_list <- list()
   
   for (s in symbols) {
-    print("current symbol")
-    print(s)
+   
     # Get the UniProt IDs for the current symbol
     current_ids <- uniprot_ids[[s]]
     
-    # Subset tfcof_df rows where any element of TF_list matches current_ids
-    subset_df <- tfcof_df %>%
-      filter(purrr::map_lgl(TF_list, ~ any(.x %in% current_ids)))
+    # Subset tftf_df rows where any element of TF_list matches current_ids
+    subset_df <- tftf_df %>%
+      dplyr::mutate(
+        matched_A = purrr::map_lgl(uniprot_A_list, ~ any(.x %in% current_ids)),
+        matched_B = purrr::map_lgl(uniprot_B_list, ~ any(.x %in% current_ids))
+      ) %>%
+      filter(matched_A | matched_B) %>%
+      dplyr::mutate(match = case_when(
+        matched_A & matched_B ~ "Both",
+        matched_A ~ "A",
+        matched_B ~ "B"
+      ))
     
     # If any rows found, add a column for the current symbol
     if(nrow(subset_df) > 0) {
       
-      subset_df <- subset_df %>% mutate(TF_symbol = s)%>%
-        filter(!is.na(tcof_gene_id)) %>%
-        distinct(tcof_gene_id, .keep_all = TRUE) %>%
-        dplyr::select(TF_symbol, tcof_gene_id, tcof_class) %>%
-        dplyr::rename(TF = TF_symbol, TFcof = tcof_gene_id, Class = tcof_class)
+      subset_df <- subset_df %>% mutate(TF_symbol_1 = s, Uniprot_1 = list(current_ids))
       
       #adding ensmbl ids of the TF
-      subset_df$TF_ensembl <- ensg_to_hgnc %>%
+      subset_df$TF1_ensembl <- ensg_to_hgnc %>%
         filter(HGNC == s) %>%
-        dplyr::select(ENSG)
+        dplyr::select(ENSG) %>% 
+        .[[1]]
       
-      
+      subset_df <- subset_df %>% 
+        rowwise() %>% 
+        mutate(TF_symbol_2 = get_symbol_from_uniprot(
+          if (matched_A == "A") uniprot_B_list else uniprot_A_list
+        ))
       
       result_list[[s]] <- subset_df
     }
@@ -97,18 +137,18 @@ observeEvent(input$btnTFTF, ({
   
   combined_df <- bind_rows(result_list)
   
-  #adding ensmbl ids for TFcof
+  #adding ensmbl ids 
   combined_df <- combined_df %>%
     rowwise() %>%
-    dplyr::mutate(TFcof_ensembl = paste(
+    dplyr::mutate(TF2_ensembl = paste(
       ensg_to_hgnc %>%
-        filter(HGNC == TFcof) %>%
+        filter(HGNC == TF_symbol_2) %>%
         dplyr::pull(ENSG),
       collapse = "|"
     )) %>%
     ungroup()
   
-  print(combined_df)
+  
   
   # If there's nothing to show, end here
   if(nrow(combined_df) == 0) {
@@ -117,94 +157,63 @@ observeEvent(input$btnTFTF, ({
       "No TF Co-Factor Interactions Found for the Current Inputs",
       type = "info"
     )
-    previousTfcofInputTFs(currentTFs)
-    output$carousel_tfcof <- renderUI({ NULL })
+    previousTftfInputTFs(currentTFs)
+    output$carousel_tftf <- renderUI({ NULL })
     return()
   }
   
-  fix_entry <- function(symbol, current_ensembl, organism) {
-    # If the current value is non-empty, return it.
-    if (!is.na(current_ensembl) && current_ensembl != "") {
-      return(current_ensembl)
-    } else {
-      # Otherwise, use gprofiler2 to convert the symbol.
-      res <- tryCatch({
-        gprofiler2::gconvert(query = symbol,
-                             organism = organism,
-                             target = "ENSG", 
-                             mthreshold = Inf,
-                             filter_na = FALSE) %>%
-          dplyr::distinct(`input`, .keep_all = TRUE) %>%
-          dplyr::pull(target)
-      }, error = function(e) NA_character_)
-      if(length(res) > 0) return(res[1])
-      return(NA_character_)
-    }
-  }
-  
-  
-  combined_df <- combined_df %>%
-    rowwise() %>%
-    mutate(
-      TF_ensembl = fix_entry(TF, TF_ensembl, organism()),
-      TFcof_ensembl = fix_entry(TFcof, TFcof_ensembl, organism())
-    ) %>%
-    ungroup()
-  
-  
-  print(combined_df)
-  
+ 
   
   screens <- lapply(symbols, function(s) {
     # Create a unique output ID for each symbol.
-    slideId <- paste0("dt_", s)
+    slideId <- paste0("dt_tftf", s)
     shinyglide::screen(
       h3(s, align = "center"),
       DT::dataTableOutput(slideId)
     )
   })
   
+   
+  # output$carousel_tftf <- renderUI({
+  #   div(id = paste0("carousel_tftf", as.integer(Sys.time())),
+  #       do.call(glide, screens)
+  #   )
+  # })
   
   output$carousel_tftf <- renderUI({
-    div(id = paste0("carousel_tftf", as.integer(Sys.time())),
-        do.call(glide, screens)
+    div(id = paste0("carousel_tftf_", round(runif(1)*1e8)),
+        do.call(shinyglide::glide, screens)
     )
   })
   
-  class_tooltips <- list(
-    "HC" = "HC: TcoFs with direct experimental support for both their role in transcriptional regulation and their presence in the nucleus.",
-    "Class 1" = "Class 1: TcoFs with experimental evidence for transcriptional regulation, but only inferred evidence for being present in the nucleus.",
-    "Class 2" = "Class 2: TcoFs with experimental evidence for nuclear localization, yet only inferred support for their role in transcriptional regulation.",
-    "Class 3" = "Class 3: TcoFs where both the regulatory function and nuclear presence are supported solely by inferred, non-experimental evidence."
-  )
+  
   
   table_data_list <- setNames(lapply(symbols, function(s) {
-    df_tmp <- combined_df %>% dplyr::filter(TF == s)
+    df_tmp <- combined_df %>% dplyr::filter(TF_symbol_1 == s)
     
     # Wrap Class column with tooltip text
-    df_tmp$Class <- sapply(df_tmp$Class, function(cl) {
-      tooltip <- class_tooltips[[cl]]
-      paste0("<span title='", tooltip, "'>", cl, "</span>")
+    
+    df_tmp$pub_id <- sapply(df_tmp$pub_id, function(val) {
+      id <- stringr::str_remove_all(val, "pubmed:")
+      paste0("<a href='https://pubmed.ncbi.nlm.nih.gov/", id, 
+             "' target='_blank' title='View publication on PubMed'>", id, "</a>")
     })
     
-    df_tmp$TF <- sapply(df_tmp$TF, function(val) {
-      paste0("<span class='clickable-cell' title='Click to show per tissue expression'>", val, "</span>")
-    })
-    df_tmp$TFcof <- sapply(df_tmp$TFcof, function(val) {
+    df_tmp$TF_symbol_2 <- sapply(df_tmp$TF_symbol_2, function(val) {
       paste0("<span class='clickable-cell' title='Click to show per tissue expression'>", val, "</span>")
     })
     
     # Reorder columns so hidden columns (Ensembl IDs) come last
-    df_tmp <- df_tmp[, c("TF", "TFcof", "Class", "TF_ensembl", "TFcof_ensembl")]
     
-    # Reorder columns so hidden columns (Ensembl IDs) come last
-    df_tmp <- df_tmp[, c("TF", "TFcof", "Class", "TF_ensembl", "TFcof_ensembl")]
+    df_tmp <- df_tmp[, c("TF_symbol_2", "pub_id", "detection_method", "TF2_ensembl")]
+    colnames(df_tmp) <- c("TF", "Pubmed", "Method", "TF_ensembl")
     
-    df_tmp
+    df_tmp %>% distinct()
   }), symbols)
   
+  
   lapply(symbols, function(s) {
-    slideId <- paste0("dt_", s)
+    slideId <- paste0("dt_tftf", s)
     output[[slideId]] <- DT::renderDT({
       # Build the DT
       DT::datatable(
@@ -217,88 +226,37 @@ observeEvent(input$btnTFTF, ({
           autoWidth = TRUE,
           columnDefs = list(
             list(targets = c(1,2), className = "clickableCell"),
-            list(targets = c(4,5), visible = FALSE)
+            list(targets = c(4), visible = FALSE)
           )
         )
       )
     })
   })
   
-  search_gene_version <- function(gene_to_load, folder = "~/gtex_splitted") {
-    # Construct a regex pattern: gene_to_load followed by a dot and then digits (the version)
-    pattern <- paste0("^", gene_to_load, "\\.[0-9]+\\.rds$")
-    files <- list.files(folder, pattern = pattern, full.names = TRUE)
-    if (length(files) > 0) {
-      return(files[1])
-    } else {
-      return(NULL)
-    }
-  }
+  print("fuckin table")
+  print(table_data_list)
   
-  get_versioned_file_path <- function(gene_to_load, folder = "~/gtex_splitted") {
-    # Check if gene_to_load already has a version suffix (e.g. ".17")
-    if (grepl("\\.[0-9]+$", gene_to_load)) {
-      # Construct the expected file path
-      file_path <- file.path(folder, paste0(gene_to_load, ".rds"))
-      if (file.exists(file_path)) {
-        return(file_path)
-      } else {
-        # Fallback: attempt to search for a matching file even if gene_to_load is versioned.
-        return(search_gene_version(gene_to_load, folder))
-      }
-    } else {
-      # gene_to_load does not have a version; search for a versioned file.
-      file_path <- search_gene_version(gene_to_load, folder)
-      if (!is.null(file_path)) {
-        return(file_path)
-      } else {
-        # Optionally, try a default file name (without version) if present.
-        file_path <- file.path(folder, paste0(gene_to_load, ".rds"))
-        if (file.exists(file_path)) return(file_path)
-        return(NULL)
-      }
-    }
-  }
   
-  #
   # OBSERVERS FOR CELL CLICK
-  # We'll create one observer per table so that when a user clicks,
-  # we pick up the row/col, figure out if they clicked TF or TFcof,
-  # then show the violin plot in a modal.
-  #
-  
-  # A single plot output ID for the modal's Plotly
-  # (We will reuse the same ID "popupPlot" for every click)
+ 
   output$popupPlot <- renderPlotly({ NULL })  # Initialize empty
   
   lapply(symbols, function(s) {
-    observeEvent(input[[paste0("dt_", s, "_cell_clicked")]], {
-      info <- input[[paste0("dt_", s, "_cell_clicked")]]
+    observeEvent(input[[paste0("dt_tftf", s, "_cell_clicked")]], {
+      info <- input[[paste0("dt_tftf", s, "_cell_clicked")]]
       if (is.null(info$row) || is.null(info$col)) return()
       
       # Get the corresponding row from our stored data
       df_clicked <- table_data_list[[s]]
       selectedRow <- df_clicked[info$row, ]
       
-      # Decide which column was clicked
-      # 'TF' -> column index 0
-      # 'TFcof' -> column index 1
-      # In 0-based indexing, columns are: 
-      #   0: TF
-      #   1: TFcof
-      #   2: Class
-      #   3: TF_ensembl (hidden)
-      #   4: TFcof_ensembl (hidden)
+
       gene_name <- NULL
       
       if (info$col == 1) {
         # User clicked on TF
         gene_name <- selectedRow$TF_ensembl
         gene_symbol <- gsub("<[^>]+>", "", selectedRow$TF)
-      } else if (info$col == 2) {
-        # User clicked on TFcof
-        gene_name <- selectedRow$TFcof_ensembl
-        gene_symbol <- gsub("<[^>]+>", "", selectedRow$TFcof)
       } else {
         return()  # Ignore clicks on the Class column or hidden columns
       }
@@ -322,9 +280,9 @@ observeEvent(input$btnTFTF, ({
       # Render the Plotly plot in the modal
       output$popupPlot <- renderPlotly({
         # Build the filename and read the data
-        # filename <- paste0(gene_to_load, ".rds")
+         filename <- paste0(gene_to_load, ".rds")
         # # Path to your expression data
-        # fullPath <- file.path("~/gtex_splitted", filename)
+         fullPath <- file.path("~/gtex_splitted", filename)
         
         fullPath <- get_versioned_file_path(gene_to_load) 
         
@@ -376,6 +334,7 @@ observeEvent(input$btnTFTF, ({
   
   
   
-  previousTfcofInputTFs(currentTFs)
+  previousTftfInputTFs(currentTFs)
 })
 )
+    

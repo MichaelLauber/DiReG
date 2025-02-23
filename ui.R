@@ -23,6 +23,20 @@ fluidPage(
   waiter::use_waiter(),
   shinyFeedback::useShinyFeedback(),
   shinyjs::useShinyjs(),
+  shinyjs::extendShinyjs(text = "
+    var timeout;
+    shinyjs.idleTimer = function(time) {
+      clearTimeout(timeout);
+      timeout = setTimeout(function(){Shiny.onInputChange('idle', true);}, time*1000);
+      $(document).on('mousemove keypress', function(e) {
+        clearTimeout(timeout);
+        timeout = setTimeout(function(){Shiny.onInputChange('idle', true);}, time*1000);
+      });
+    };
+    shinyjs.resetIdleTimer = function() {
+      clearTimeout(timeout);
+    };
+  ", functions = c("idleTimer", "resetIdleTimer")),
                     
   navbarPage(
     id = "menu",
@@ -34,13 +48,17 @@ fluidPage(
     footer = column(12, align="center", 
                         "DiReG-App 2024 (v1.0.0)",
                         ),
+    shinyjs::hidden(textInput("csrf_token", "CSRF Token")),
+    
     source("ui/ui_mining.R")$value,         
+    tabPanel("Login", uiOutput("login_tabset") ),
     source("ui/ui_explore.R")$value,              
     source("ui/ui_home.R")$value,
       
     source("ui/ui_pred_ame.R")$value,
     
     source("ui/ui_documentation.R")$value,
+    
           
         
     hr()  

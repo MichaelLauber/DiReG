@@ -1,6 +1,6 @@
 library(slickR)
-library(org.Hs.eg.db)  # Use `org.Mm.eg.db` for Mouse
-library(org.Mm.eg.db)  # Use `org.Mm.eg.db` for Mouse
+library(org.Hs.eg.db)  
+library(org.Mm.eg.db)  
 library(AnnotationDbi)
 
 ensg_to_hgnc <- readRDS("data/ensg_to_hgnc.rds")
@@ -8,6 +8,7 @@ mapping <- readRDS("data/gtex_mapping.rds")
 
 tfcof_interaction_hs <- readRDS("data/gene_tf_interactions_human_annotated_small.rds")
 tfcof_interaction_mm <- readRDS("data/gene_tf_interactions_mouse_annotated_small.rds")
+
 
 # Create content for the carousel
 
@@ -41,7 +42,7 @@ observeEvent(input$btnTfcof, ({
   currentTFs <- inputTFs()
 
   if (identical(currentTFs, previousTfcofInputTFs())) {
-    print("same input TFs")
+    print("Same input: TFCof wont be changed")
     return()
   }
 
@@ -66,8 +67,6 @@ observeEvent(input$btnTfcof, ({
   result_list <- list()
   
   for (s in symbols) {
-    print("current symbol")
-    print(s)
     # Get the UniProt IDs for the current symbol
     current_ids <- uniprot_ids[[s]]
     
@@ -108,7 +107,6 @@ observeEvent(input$btnTfcof, ({
     )) %>%
     ungroup()
   
-  print(combined_df)
   
   # If there's nothing to show, end here
   if(nrow(combined_df) == 0) {
@@ -152,8 +150,6 @@ observeEvent(input$btnTfcof, ({
     ungroup()
   
   
-  print(combined_df)
-  
 
   screens <- lapply(symbols, function(s) {
     # Create a unique output ID for each symbol.
@@ -163,13 +159,15 @@ observeEvent(input$btnTfcof, ({
       DT::dataTableOutput(slideId)
     )
   })
-
+ 
 
   output$carousel_tfcof <- renderUI({
     div(id = paste0("carousel_", as.integer(Sys.time())),
         do.call(glide, screens)
     )
   })
+  
+  
   
   class_tooltips <- list(
     "HC" = "HC: TcoFs with direct experimental support for both their role in transcriptional regulation and their presence in the nucleus.",
@@ -202,6 +200,9 @@ observeEvent(input$btnTfcof, ({
     
     df_tmp
   }), symbols)
+  
+  print("TFcof table")
+  print(table_data_list)
   
   lapply(symbols, function(s) {
     slideId <- paste0("dt_", s)
