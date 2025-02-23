@@ -284,8 +284,6 @@ observeEvent(input$btnTFTF, ({
         # # Path to your expression data
          fullPath <- file.path("~/gtex_splitted", filename)
         
-        fullPath <- get_versioned_file_path(gene_to_load) 
-        
         if (!file.exists(fullPath)) {
           showModal(modalDialog(
             title = paste("Warning for", gene_symbol),
