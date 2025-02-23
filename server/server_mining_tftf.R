@@ -47,6 +47,13 @@ observeEvent(input$btnTFTF, ({
     return()
   }
   
+  waiter <- waiter::Waiter$new()
+  waiter$show()
+  on.exit(waiter$hide())
+  
+  notification <- showNotification(glue::glue("Retrieving interacting TFs. This might take a few seconds"), type = "message", duration = NULL, closeButton = TRUE)
+  on.exit(removeNotification(notification), add = TRUE)
+  
   symbols <- c(inputTFs())
   #symbols <- c("HNF1A", "FOXP3")
   nrFigs <- length(symbols)
