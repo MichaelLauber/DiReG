@@ -1,3 +1,24 @@
+cond_exploreExp <- reactiveVal(1)
+cond_exploreComp <- reactiveVal(0)
+
+output$cond_exploreExp = renderText({cond_exploreExp()})
+output$cond_exploreComp = renderText({cond_exploreComp()})
+
+outputOptions(output, 'cond_exploreExp', suspendWhenHidden=FALSE)
+outputOptions(output, 'cond_exploreComp', suspendWhenHidden=FALSE)
+
+
+observeEvent(input$radioExploreTyp, 
+             if(input$radioExploreTyp == "Experimental"){
+               cond_exploreExp(1)
+               cond_exploreComp(0)
+             } else {
+               cond_exploreExp(0)
+               cond_exploreComp(1)
+             }
+) 
+
+
 all_infered_protocols <- read.csv(file.path("data","all_inferred_protocols.csv"))
 
 all_infered_protocols$Method %>% table()
