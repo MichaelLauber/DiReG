@@ -18,30 +18,30 @@ validate_openai_key <- function(api_key) {
   }
 }
 
-# # Function to check password strength
-# isStrongPassword <- function(password) {
-#   if (nchar(password) < 8) {
-#     return("Password must be at least 8 characters long.")
-#   }
-#   if (!grepl("[A-Z]", password)) {
-#     return("Password must include at least one uppercase letter.")
-#   }
-#   if (!grepl("[a-z]", password)) {
-#     return("Password must include at least one lowercase letter.")
-#   }
-#   if (!grepl("[0-9]", password)) {
-#     return("Password must include at least one number.")
-#   }
-#   if (!grepl("[^A-Za-z0-9]", password)) {
-#     return("Password must include at least one special character.")
-#   }
-#   return(TRUE)
-# }
-
 # Function to check password strength
 isStrongPassword <- function(password) {
-  TRUE
+  if (nchar(password) < 8) {
+    return("Password must be at least 8 characters long.")
+  }
+  if (!grepl("[A-Z]", password)) {
+    return("Password must include at least one uppercase letter.")
+  }
+  if (!grepl("[a-z]", password)) {
+    return("Password must include at least one lowercase letter.")
+  }
+  if (!grepl("[0-9]", password)) {
+    return("Password must include at least one number.")
+  }
+  if (!grepl("[^A-Za-z0-9]", password)) {
+    return("Password must include at least one special character.")
+  }
+  return(TRUE)
 }
+
+# # For debuggin
+# isStrongPassword <- function(password) {
+#   TRUE
+# }
 
 
 lock_account <- function(user, credentials, con, passphrase) {
