@@ -50,10 +50,10 @@ fluidPage(
                         ),
     shinyjs::hidden(textInput("csrf_token", "CSRF Token")),
     
-    tabPanel("Login", uiOutput("login_tabset") ),
-    source("ui/ui_explore.R")$value,              
     source("ui/ui_mining.R")$value,         
+    tabPanel("Login", uiOutput("login_tabset") ),
     source("ui/ui_home.R")$value,
+    source("ui/ui_explore.R")$value,              
       
     source("ui/ui_pred_ame.R")$value,
     

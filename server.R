@@ -297,24 +297,24 @@ function(input, output, session) {
  
              
      
-  # source("server/server_explore.R", local=T)
-  # source("server/server_discovery.R", local=T)     
-  # source("server/server_doc.R", local=T)
-  #   
-  # source("utils/utils_enrichment.R") 
-  # source("server/server_mining_network.R", local=T)
-  # source("server/server_mining_ora.R", local=T)
-  # source("server/server_mining_gsea.R", local=T)
-  # source("server/server_mining_gtex.R", local=T)
-  # source("server/server_mining_tfcof.R", local=T)
-  # source("server/server_mining_tftf.R", local=T)
-  # source("server/server_mining_isoform.R", local=T)
-  # source("server/server_mining_tfa.R", local=T)
+  source("server/server_explore.R", local=T)
+  source("server/server_discovery.R", local=T)
+  source("server/server_doc.R", local=T)
+
+  source("utils/utils_enrichment.R")
+  source("server/server_mining_network.R", local=T)
+  source("server/server_mining_ora.R", local=T)
+  source("server/server_mining_gsea.R", local=T)
+  source("server/server_mining_gtex.R", local=T)
+  source("server/server_mining_tfcof.R", local=T)
+  source("server/server_mining_tftf.R", local=T)
+  source("server/server_mining_isoform.R", local=T)
+  source("server/server_mining_tfa.R", local=T)
   # 
   source("server/server_login.R", local=T)
   
   #remove after debugging
-  #shinyjs::runjs("$(document).ready(function() { $('#btnCreateDoro').click(); });")
+  shinyjs::runjs("$(document).ready(function() { $('#btnCreateDoro').click(); });")
   
   
     
