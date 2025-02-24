@@ -27,6 +27,13 @@ data <- reactive({
     dplyr::select(from, to, mor, confidence)
 })
 
+#loads example TFs in the input field 
+observeEvent(input$btnMiningExample, {
+  value <- "HNF1A HNF4A ONECUT1 ATF5 PROX1 CEBPA"
+  updateTextInput(session, "inputTextTFs", value=value)
+})
+
+
 inputTFs <- eventReactive(input$btnCreateDoro, {
   
   networkCreated <<- TRUE
