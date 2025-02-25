@@ -26,9 +26,9 @@ aes_key_openai_api <- readRDS("login/aes_key_openai_api.rds")
 login_mode    <- reactiveVal("login")
 logged_in_user <- reactiveVal(NULL)
 login_attempts <- reactiveValues()
-openai_key    <- reactiveVal(NULL)
-favorite_model <- reactiveVal(NULL)
-key_uploaded  <- reactiveVal(FALSE)
+# openai_key    <- reactiveVal(NULL)
+# favorite_model <- reactiveVal(NULL)
+# key_uploaded  <- reactiveVal(FALSE)
 
 output$login_tabset <- renderUI({
   if (is.null(logged_in_user())) {

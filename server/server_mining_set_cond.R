@@ -78,3 +78,11 @@ outputOptions(output, 'cond_tfcof', suspendWhenHidden=FALSE)
 outputOptions(output, 'cond_tftf', suspendWhenHidden=FALSE)
 outputOptions(output, 'cond_isoforms', suspendWhenHidden=FALSE)
 outputOptions(output, 'cond_tfa', suspendWhenHidden=FALSE)
+
+
+cond_visnet <- reactiveVal(0)
+cond_visnet(1)
+
+observe({
+  shinyjs::runjs(sprintf('window.cond_visnet = "%s"', cond_visnet())) # set to 0 in eventReactive(input$btnCreateDoro...
+})

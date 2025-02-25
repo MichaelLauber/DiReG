@@ -42,6 +42,19 @@ tabPanel(
                 white-space: pre-wrap; /* Allows the placeholder to wrap naturally */
             }
         ")),
+              radioButtons("explore_mode",  titleWithPopover("Select Mode" , "Mode", 
+                                                             "Fast: Answers cheaply and quickly; High Quality: Highly performant but relatively expensive and slow"),
+                     choices = list("Fast" = "fast", "High Quality" = "high_quality"), 
+                     selected = "fast", inline = TRUE),
+        sliderInput(
+          "explore_temp",
+          titleWithPopover("Temperature", "Controls the randomness", "High values lead to more creative but less deterministic and focused answers"),
+          min = 0,
+          max = 1,
+          value = 0.5,
+          ticks = T,
+          width = "150px"
+        ),
             actionButton("explore_prompt_btn", "Ask"),
             actionButton("explore_example_btn", "Example"),
             verbatimTextOutput("api_response_output")

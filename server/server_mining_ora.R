@@ -185,4 +185,62 @@
     }
   )
 
-
+  #### LLM
+  
+  observeEvent(input$submit_prompt_ora_btn, {
+    
+    if(!key_uploaded()){
+      showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
+    }
+    
+    user_prompt <- paste0("Do the overrepresentated genesets show specifity for:", input$user_prompt_ora, "-These are the enriched genesets: ", paste(cache$enrichData$result$term_name, collapse = ", "))
+    output$llm_response_ora <- renderText("Generating response, please wait...")
+    shinyjs::runjs("$('#llm_response_ora').text('Generating response, please wait...');")
+    
+    
+    ####Using openaiAPI
+    
+    data <- jsonlite::toJSON(list(
+      model = api_settings()$preferred_model,  # Specify the model you want to use (e.g., "gpt-3.5-turbo" or "davinci")
+      messages = list(
+        list(role = "user", content = user_prompt)
+      ),
+      max_tokens = 1000
+    ), auto_unbox = TRUE)
+    
+    response <- httr::POST(
+      url,
+      httr::add_headers(
+        Authorization = paste("Bearer", api_settings()$api_key),
+        `Content-Type` = "application/json"
+      ),
+      body = data,
+      encode = "json"
+    )  
+    
+    print(response)
+    
+    # Check the response status
+    if (httr::status_code(response) == 200) {
+      # Parse the response
+      content <- httr::content(response, as = "text", encoding = "UTF-8")
+      parsed_content <- jsonlite::fromJSON(content)
+      
+      print("Total tokens:")
+      print(parsed_content$usage$total_tokens)
+      
+      response_to_display <- parsed_content$choices$message$content
+      # Extract and print the response text
+      #cat("Response from OpenAI:\n")
+      #cat(parsed_content$choices$message$content, "\n")
+    } else {
+      # Print an error message if the request fails
+      cat("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
+      response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
+    }
+    
+    #####
+    output$llm_response_ora <- renderText({
+      response_to_display
+    })
+  })  

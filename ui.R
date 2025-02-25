@@ -4,11 +4,11 @@ library(plotly)
 library(DT)
 library(shinyglide) 
            
-                 
+                     
 fluidPage(         
             
   tags$head(
-    #for fileinput in AME?
+    #for fileinput in AME?  
      tags$script(src = "load-example.js"),
      
      tags$style(HTML("
@@ -16,9 +16,9 @@ fluidPage(
         white-space: pre-wrap;
         word-break: break-word;
       }
-    "))   
-  ), 
-         
+    "))      
+  ),  
+          
   includeCSS("css/style.css"),
   waiter::use_waiter(),
   shinyFeedback::useShinyFeedback(),
@@ -26,10 +26,10 @@ fluidPage(
   shinyjs::extendShinyjs(text = "
     var timeout;
     shinyjs.idleTimer = function(time) {
-      clearTimeout(timeout);
+      clearTimeout(timeout); 
       timeout = setTimeout(function(){Shiny.onInputChange('idle', true);}, time*1000);
       $(document).on('mousemove keypress', function(e) {
-        clearTimeout(timeout);
+        clearTimeout(timeout);  
         timeout = setTimeout(function(){Shiny.onInputChange('idle', true);}, time*1000);
       });
     };
@@ -50,10 +50,10 @@ fluidPage(
                         ),
     shinyjs::hidden(textInput("csrf_token", "CSRF Token")),
     
+    source("ui/ui_explore.R")$value,              
     source("ui/ui_mining.R")$value,         
     tabPanel("Login", uiOutput("login_tabset") ),
     source("ui/ui_home.R")$value,
-    source("ui/ui_explore.R")$value,              
       
     source("ui/ui_pred_ame.R")$value,
     

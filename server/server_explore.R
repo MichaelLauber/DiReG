@@ -84,3 +84,64 @@ observeEvent(input$dt_inferred_protocols_cell_clicked, {
     }
   }
 })
+
+
+### server_explore 
+
+example_question <- "How can I differentiate Pancreatic duct cells into beta cells? Which transcription factors are necessary?"
+
+# Load example question when the Example button is pressed
+observeEvent(input$explore_example_btn, { 
+  print("Example Pressed")
+  updateTextAreaInput(session, "user_prompt_explore", value = example_question)
+})
+
+observeEvent(input$explore_prompt_btn, {
+  
+  if(!key_uploaded()){
+    showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
+  }
+  
+ 
+  # Get the user question from the text area input
+  user_question <- input$user_prompt_explore
+
+  
+  # Only proceed if user question is not empty
+  if (nzchar(user_question)) {
+    
+    shinyjs::runjs("$('#api_response_output').text('Generating response, please wait...');")
+    
+    url <- "http://localhost:5555/query"
+    
+    payload <- list(
+      question = user_question,
+      temperature = input$explore_temp,
+      rate_limit = "30000 per 1 minute",
+      folder = "/.",  # adjust if you mounted the folder or copied it in Docker
+      mode = input$explore_mode,
+      llm = api_settings()$preferred_model,
+      summary_llm = api_settings()$preferred_model,
+      agent_llm = api_settings()$preferred_model,
+      max_answer_attempts = 3,
+      api_key = api_settings()$api_key
+    )
+    
+    
+    # Send POST request to the API
+    response <- httr::POST(url, body = payload, encode = "json")
+    result <- httr::content(res, "parsed")
+    
+    # Parse the response and update the output text area
+    if (response$status_code == 200) {
+      output$api_response_output <- renderText({ result$formatted_answer })
+    } else {
+      error_message <- paste("An error occurred. Status code:", response$status_code)
+      print(error_message)
+      output$api_response_output <- renderText({ error_message })
+    }
+  } else {
+    # If the input is empty, prompt the user to enter a question
+    showModal(modalDialog("Please enter a question.", easyClose = TRUE))
+  }
+})
