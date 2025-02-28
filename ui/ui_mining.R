@@ -1,9 +1,16 @@
 tabPanel("Signature Mining",  
          div(id="container-mining-input", 
-             textInput("inputTextTFs", 
-                       "",
-                       #value = "Enter Transcription Factors"
-                       value = "HNF1A"
+             div(
+               style = "display: flex; align-items: center;",
+               textInput("inputTextTFs", "", value = "HNF1A"),
+               div(
+                 style = "margin-left: 5px;",
+                 titleWithPopover(
+                   "",
+                   "Supported Formats",
+                   "Symbol and ENSG (can be mixed) separated by comma, semicolon or space"
+                 )
+               )
              ),
              
              actionButton("btnCreateDoro",
@@ -75,7 +82,7 @@ tabPanel("Signature Mining",
                   conditionalPanel('output.cond_gtex == "1"', 
                                    hr(),
                                    hr(),
-                                   h3('GTEx Analysis', align="center"),
+                                   h3('Expression Comparision', align="center"),
                                    div(class="vw70", uiOutput("carousel"))
                   ),
                   conditionalPanel('output.cond_tfcof == "1"', 
