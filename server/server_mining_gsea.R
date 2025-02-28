@@ -88,7 +88,6 @@ observeEvent(input$btnGSEA, {
     
     ###!!!!
     cache_gsea$comb_gsea_res <- do.call(rbind,gsea_res_DTs)
-    print(paste(cache_gsea$comb_gsea_res$pathway, collapse = ", "))
     
     cachedResGseaDT$gsea_res_DTs <- gsea_res_DTs
     
@@ -243,21 +242,15 @@ observeEvent(input$submit_prompt_gsea_btn, {
     encode = "json"
   )
   
-  print(response)
-  
+
   # Check the response status
   if (httr::status_code(response) == 200) {
     # Parse the response
     content <- httr::content(response, as = "text", encoding = "UTF-8")
     parsed_content <- jsonlite::fromJSON(content)
     
-    print("Total tokens:")
-    print(parsed_content$usage$total_tokens)
-    
     response_to_display <- parsed_content$choices$message$content
-    # Extract and print the response text
-    #cat("Response from OpenAI:\n")
-    #cat(parsed_content$choices$message$content, "\n")
+
   } else {
     # Print an error message if the request fails
     cat("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
