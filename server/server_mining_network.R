@@ -7,6 +7,9 @@ networkCreated <- FALSE
 btnCreateDoroPressed <- reactiveVal(FALSE)
 dropdownSelected <- reactiveVal(FALSE) # checks if the network should be ristricted to a selected TF
 
+previousInput <- reactiveVal(list(raw = NULL, org = NULL))
+previousTFs <- reactiveVal(NULL)
+
 dorothea <- reactive({
   switch(input$radioOrgDorothea,
          "human" = dorothea_hs,
@@ -33,29 +36,68 @@ observeEvent(input$btnMiningExample, {
   updateTextInput(session, "inputTextTFs", value=value)
 })
 
+tfList <- reactiveVal(NULL)
 
-inputTFs <- eventReactive(input$btnCreateDoro, {
+observeEvent(list(input$btnCreateDoro, organism()), {
   
   networkCreated <<- TRUE
   btnCreateDoroPressed(TRUE)
+  
+  raw_input <- input$inputTextTFs
+  current_org <- organism()  # get current organism value
+  
+  # Retrieve the previous stored input (a list with raw and org)
+  prev <- previousInput()
+  
+  # Only skip re-computation if BOTH the raw input and organism haven't changed
+  if (!is.null(prev$raw) && raw_input == prev$raw &&
+      !is.null(prev$org) && current_org == prev$org) {
+    message("Same input and same organism, skipping TF re-computation.")
+    return()
+  }
+  
+  # Update the stored input with the new raw input and organism
+  previousInput(list(raw = raw_input, org = current_org))
+  
   cond_visnet(0)
   shinyjs::runjs(sprintf('window.cond_visnet = "%s"', cond_visnet()))
-  raw_input <- input$inputTextTFs
-  split_result <- stringr::str_split(raw_input, "[,;\\s]+") %>%  unlist()
+  
+  shinyjs::toggle(id = "networkContainer", condition = TRUE)  # Show the network container
+  shinyjs::toggle(id = "expandButtonContainer", condition = FALSE)  # Hide the button container
+  
+  # Split and clean the input text
+  split_result <- stringr::str_split(raw_input, "[,;\\s]+") %>% unlist()
   processed_input <- split_result[split_result != ""]
   
-  gprofiler2::gconvert(query = processed_input,
-                       organism = organism(),
-                       target="ENSG", # ifelse(organism() == "mmusculus", "ENSMUSG", "ENSG")
-                       mthreshold = Inf,
-                       filter_na = FALSE) %>%
+
+  # Perform the conversion using gprofiler2
+  result <- gprofiler2::gconvert(
+    query = processed_input,
+    organism = current_org,
+    target = "ENSG",
+    mthreshold = Inf,
+    filter_na = FALSE
+  ) %>%
     dplyr::distinct(`input`, .keep_all = TRUE) %>%
-    dplyr::mutate(output = case_when(
+    dplyr::mutate(output = dplyr::case_when(
       is.na(name) ~ processed_input,
-      TRUE ~ name
+      TRUE        ~ name
     )) %>%
     dplyr::pull(output)
+  
+  # Update the reactive value that stores the TF list
+  tfList(result)
+  message("Computed new TF list:")
+  message(result)
 })
+
+
+# 3. Provide a reactive that simply returns tfList
+inputTFs <- reactive({
+  tfList()
+})
+
+
 
 allTFs <- reactive({
   unique(dorothea()$source)
