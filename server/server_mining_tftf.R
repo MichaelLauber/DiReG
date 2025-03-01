@@ -1,17 +1,70 @@
-library(slickR)
 library(org.Hs.eg.db)  
 library(org.Mm.eg.db)  
-library(AnnotationDbi)
 
-ensg_to_hgnc <- readRDS("data/ensg_to_hgnc.rds")
-mapping <- readRDS("data/gtex_mapping.rds")
 
 sub_cols <- c("detection_method", "pub_id", "uniprot_A_list", "uniprot_B_list")
 
 tftf_interacton_hs <- readRDS("data/human_tf_tf_interactions.rds") %>% dplyr::select(sub_cols)
 tftf_interaction_mm <- readRDS("data/mouse_tf_tf_interactions.rds") %>% dplyr::select(sub_cols)
 
+selectedGeneTFTF <- reactiveVal(NULL)
+
 # Create content for the carousel
+
+folderInfo <- reactive({
+  if (input$radioOrgDorothea == "human") {
+    folder <- "hs_tfs_rds_files"
+    file_ending <- "_human_TFs.rds"
+  } else {
+    folder <- "mm_tfs_rds_files"
+    file_ending <- "_tmuris_tfs.rds"
+  }
+  list(
+    folder_path = file.path("data", folder),
+    file_ending = file_ending
+  )
+})
+
+files <- reactive({
+  list.files(folderInfo()$folder_path)
+})
+
+tissues_exp <- reactive({
+  stringr::str_replace_all(files(), "_(human|tmuris)_TFs.rds", "")
+})
+
+dataModalExpTFTF <- function(failed = FALSE) {
+  modalDialog(
+    radioButtons("compareTissuesMining", "Display Option", 
+                 choices = c("Single Tissue" = "single", "Compare Two Tissues" = "compare"), 
+                 selected = "compare", inline = TRUE),
+    
+    selectizeInput("selectTissueExpStartTFTF", 
+                   "Tissue",
+                   choices = tissues_exp(),  # placeholder choices; replace with your reactive list if needed
+                   selected = tissues_exp()[1],
+                   width = "230px"),
+    
+    conditionalPanel(
+      condition = "input.compareTissuesMining == 'compare'",
+      selectizeInput("selectTissueExpTargetTFTF",
+                     "Target Tissue",
+                     choices = tissues_exp(),  # placeholder choices
+                     selected = tissues_exp()[2],
+                     width = "230px")
+    ),
+    
+    span("Analyze TF Expression. Please be patient, might take some time till plots are rendered"),
+    
+    if (failed) {
+      div(tags$b("Invalid name of data object", style = "color: red;"))
+    },
+    
+    footer = tagList(
+      modalButton("Cancel"),
+      actionButton("okTissueTFTF", "OK")    )
+  )
+}
 
 previousTftfInputTFs <- reactiveVal(NULL)
 
@@ -93,7 +146,7 @@ observeEvent(input$btnTFTF, ({
   }
   
 
-  uniprot_ids <- mapIds(orgDB,
+  uniprot_ids <- AnnotationDbi::mapIds(orgDB,
                         keys = symbols,
                         keytype = "SYMBOL",
                         column = "UNIPROT",
@@ -126,11 +179,6 @@ observeEvent(input$btnTFTF, ({
       
       subset_df <- subset_df %>% mutate(TF_symbol_1 = s, Uniprot_1 = list(current_ids))
       
-      #adding ensmbl ids of the TF
-      subset_df$TF1_ensembl <- ensg_to_hgnc %>%
-        filter(HGNC == s) %>%
-        dplyr::select(ENSG) %>% 
-        .[[1]]
       
       subset_df <- subset_df %>% 
         rowwise() %>% 
@@ -143,18 +191,6 @@ observeEvent(input$btnTFTF, ({
   }
   
   combined_df <- bind_rows(result_list)
-  
-  #adding ensmbl ids 
-  combined_df <- combined_df %>%
-    rowwise() %>%
-    dplyr::mutate(TF2_ensembl = paste(
-      ensg_to_hgnc %>%
-        filter(HGNC == TF_symbol_2) %>%
-        dplyr::pull(ENSG),
-      collapse = "|"
-    )) %>%
-    ungroup()
-  
   
   
   # If there's nothing to show, end here
@@ -180,12 +216,6 @@ observeEvent(input$btnTFTF, ({
     )
   })
   
-   
-  # output$carousel_tftf <- renderUI({
-  #   div(id = paste0("carousel_tftf", as.integer(Sys.time())),
-  #       do.call(glide, screens)
-  #   )
-  # })
   
   output$carousel_tftf <- renderUI({
     div(id = paste0("carousel_tftf_", round(runif(1)*1e8)),
@@ -212,8 +242,8 @@ observeEvent(input$btnTFTF, ({
     
     # Reorder columns so hidden columns (Ensembl IDs) come last
     
-    df_tmp <- df_tmp[, c("TF_symbol_2", "pub_id", "detection_method", "TF2_ensembl")]
-    colnames(df_tmp) <- c("TF", "Pubmed", "Method", "TF_ensembl")
+    df_tmp <- df_tmp[, c("TF_symbol_2", "pub_id", "detection_method")]
+    colnames(df_tmp) <- c("TF", "Pubmed", "Method")
     
     df_tmp %>% distinct()
   }), symbols)
@@ -232,16 +262,12 @@ observeEvent(input$btnTFTF, ({
           pageLength = 10,
           autoWidth = TRUE,
           columnDefs = list(
-            list(targets = c(1,2), className = "clickableCell"),
-            list(targets = c(4), visible = FALSE)
+            list(targets = c(1,2), className = "clickableCell")
           )
         )
       )
     })
   })
-  
-  print("fuckin table")
-  print(table_data_list)
   
   
   # OBSERVERS FOR CELL CLICK
@@ -262,84 +288,158 @@ observeEvent(input$btnTFTF, ({
       
       if (info$col == 1) {
         # User clicked on TF
-        gene_name <- selectedRow$TF_ensembl
+        #gene_name <- selectedRow$TF_ensembl
         gene_symbol <- gsub("<[^>]+>", "", selectedRow$TF)
+        selectedGeneTFTF(gene_symbol)
       } else {
         return()  # Ignore clicks on the Class column or hidden columns
       }
+      showModal(dataModalExpTFTF())
+     
       
-      # If gene_name is empty or missing, do nothing
-      if (is.null(gene_name) || is.na(gene_name) || gene_name == "") return()
-      
-      # 'gene_name' might contain multiple IDs separated by "|"
-      # We'll take the first one for demonstration
-      gene_name_vec <- stringr::str_split(gene_name, "\\|")[[1]]
-      gene_to_load <- gene_name_vec[1]
-      
-      # Show a modal with the Plotly plot for the selected gene
-      showModal(modalDialog(
-        title = paste("Expression plot for", gene_symbol),
-        plotlyOutput("popupPlot"),
-        easyClose = TRUE,
-        footer = modalButton("Close")
-      ))
-      
-      # Render the Plotly plot in the modal
-      output$popupPlot <- renderPlotly({
-        # Build the filename and read the data
-         filename <- paste0(gene_to_load, ".rds")
-        # # Path to your expression data
-         fullPath <- file.path("~/gtex_splitted", filename)
-        
-        if (!file.exists(fullPath)) {
-          showModal(modalDialog(
-            title = paste("Warning for", gene_symbol),
-            "No expression data found for the selected gene.",
-            easyClose = TRUE,
-            footer = modalButton("Close")
-          ))
-          return()
-        }
-        
-        # If file doesn't exist, show a simple plot or message
-        if (!file.exists(fullPath)) {
-          return(plot_ly() %>%
-                   layout(title = "Expression file not found"))
-        }
-        
-        gene <- readRDS(fullPath)
-        
-        df_gene <- data.frame(id = names(gene), values = gene)
-        df_gene$tissue <- mapping$SMTSD[match(df_gene$id, mapping$id)]
-        
-        plot_ly(df_gene,
-                y = ~values,
-                x = ~tissue,
-                type = 'violin',
-                split = ~tissue,
-                box = list(visible = TRUE),
-                meanline = list(visible = TRUE),
-                spanmode = "hard",
-                marker = list(size = 3)) %>%
-          layout(
-            xaxis = list(
-              title = paste("Expression plot for", gene_to_load),
-              tickangle = 45,
-              spanmode = "hard"
-            ),
-            yaxis = list(
-              title = "TPM",
-              zeroline = FALSE
-            ),
-            showlegend = FALSE
-          )
-      })
+
     })
   })
   
-  
+   
   
   previousTftfInputTFs(currentTFs)
 })
 )
+
+observeEvent(input$okTissueTFTF, {
+  # Close the tissue-selection modal first
+  removeModal()
+  
+  # Retrieve the clicked gene symbol
+  gene_symbol <- unname(selectedGeneTFTF())
+  
+  
+  
+  
+  if (is.null(gene_symbol) || gene_symbol == "") {
+    print("No gene symbol selected. Calculation aborted.")
+    return()
+  }
+  
+  # Get selected tissues and determine compare mode
+  tissue_start <- input$selectTissueExpStartTFTF
+  compare_mode <- (input$compareTissuesMining == "compare")
+  tissue_target <- if (compare_mode) input$selectTissueExpTargetTFTF else NA
+  
+
+  # Load expression data for the start tissue (and for target if needed)
+  expr_data_start <- readRDS(
+    file.path(folderInfo()$folder_path, paste0(tissue_start, folderInfo()$file_ending))
+  )
+  if (compare_mode) {
+    expr_data_target <- readRDS(
+      file.path(folderInfo()$folder_path, paste0(tissue_target, folderInfo()$file_ending))
+    )
+  }
+ 
+  
+  # If organism is human, filter expression data by free_annotation counts (>=40)
+  if (input$radioOrgDorothea == "human") {
+    annotation_counts_start <- table(expr_data_start$free_annotation)
+    valid_annotations_start <- names(annotation_counts_start[annotation_counts_start >= 40])
+    expr_data_start <- expr_data_start[expr_data_start$free_annotation %in% valid_annotations_start, ]
     
+    if (compare_mode) {
+      annotation_counts_target <- table(expr_data_target$free_annotation)
+      valid_annotations_target <- names(annotation_counts_target[annotation_counts_target >= 40])
+      expr_data_target <- expr_data_target[expr_data_target$free_annotation %in% valid_annotations_target, ]
+    }
+  }
+  
+  # Define columns to keep for plotting
+  columns_to_keep <- c("cell_ontology_class", "free_annotation", "broad_cell_class")
+  
+  if (compare_mode && tissue_start != tissue_target) {
+ 
+    # Calculate the plot for the start tissue
+    p_start <- plotly::plot_ly(
+      data = dplyr::select(expr_data_start, dplyr::all_of(c(gene_symbol, columns_to_keep))),
+      y = ~.data[[gene_symbol]],
+      x = ~cell_ontology_class,
+      type = "violin",
+      split = ~cell_ontology_class,
+      box = list(visible = TRUE),
+      meanline = list(visible = TRUE),
+      spanmode = "hard",
+      marker = list(size = 3)
+    ) %>%
+      plotly::layout(
+        xaxis = list(title = paste0("Tissue: ", tissue_start), tickangle = 45),
+        yaxis = list(title = "Expression", zeroline = FALSE),
+        showlegend = FALSE
+      )
+    
+    # Calculate the plot for the target tissue
+    p_target <- plotly::plot_ly(
+      data = dplyr::select(expr_data_target, dplyr::all_of(c(gene_symbol, columns_to_keep))),
+      y = ~.data[[gene_symbol]],
+      x = ~cell_ontology_class,
+      type = "violin",
+      split = ~cell_ontology_class,
+      box = list(visible = TRUE),
+      meanline = list(visible = TRUE),
+      spanmode = "hard",
+      marker = list(size = 3)
+    ) %>%
+      plotly::layout(
+        xaxis = list(title = paste0("Tissue: ", tissue_target), tickangle = 45),
+        yaxis = list(title = "Expression", zeroline = FALSE),
+        showlegend = FALSE
+      )
+    
+    
+    # Show modal with two columns
+    showModal(modalDialog(
+      title = "Calculated Plots",
+      fluidRow(
+        column(6, plotlyOutput("plotlyStartTFTF")),
+        column(6, plotlyOutput("plotlyTargetTFTF"))
+      ),
+      easyClose = TRUE,
+      footer = modalButton("Close")
+    ))
+    
+    output$plotlyStartTFTF <- plotly::renderPlotly({ p_start })
+    output$plotlyTargetTFTF <- plotly::renderPlotly({ p_target })
+    
+  } else {
+    # Calculate the plot for single tissue mode
+
+    
+    p_single <- plotly::plot_ly(
+      data = dplyr::select(expr_data_start, dplyr::all_of(c(gene_symbol, columns_to_keep))),
+      y = ~.data[[gene_symbol]],
+      x = ~cell_ontology_class,
+      type = "violin",
+      split = ~cell_ontology_class,
+      box = list(visible = TRUE),
+      meanline = list(visible = TRUE),
+      spanmode = "hard",
+      marker = list(size = 3)
+    ) %>%
+      plotly::layout(
+        xaxis = list(title = paste0("Tissue: ", tissue_start), tickangle = 45),
+        yaxis = list(title = "Expression", zeroline = FALSE),
+        showlegend = FALSE
+      )
+    
+    
+    
+    # Show modal with single plot output
+    showModal(modalDialog(
+      title = "Calculated Plot",
+      plotlyOutput("plotlySingleTFTF"),
+      easyClose = TRUE,
+      footer = modalButton("Close")
+    ))
+    
+    output$plotlySingleTFTF <- plotly::renderPlotly({ p_single })
+  }
+})
+
