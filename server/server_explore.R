@@ -118,7 +118,7 @@ observeEvent(input$explore_prompt_btn, {
       question = user_question,
       temperature = input$explore_temp,
       rate_limit = "30000 per 1 minute",
-      folder = "/.",  # adjust if you mounted the folder or copied it in Docker
+      folder = "/app/papers",  # adjust if you mounted the folder or copied it in Docker
       mode = input$explore_mode,
       llm = api_settings()$preferred_model,
       summary_llm = api_settings()$preferred_model,

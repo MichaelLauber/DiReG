@@ -1,6 +1,6 @@
 previousExpInputTFs <- reactiveVal(NULL)
 
-folderInfo <- reactive({
+folderInfo_exp <- reactive({
   if (input$radioOrgDorothea == "human") {
     folder <- "hs_tfs_rds_files"
     file_ending <- "_human_TFs.rds"
@@ -8,18 +8,24 @@ folderInfo <- reactive({
     folder <- "mm_tfs_rds_files"
     file_ending <- "_tmuris_tfs.rds"
   }
-  list(
+  res <- list(
     folder_path = file.path("data", folder),
     file_ending = file_ending
   )
+  message("folder in mining exp")
+  print(paste("For expression, using folder:", res$folder_path, "with ending:", res$file_ending))
+  res
 })
 
-files <- reactive({
-  list.files(folderInfo()$folder_path)
+files_exp <- reactive({
+  list.files(folderInfo_exp()$folder_path)
 })
 
 tissues_exp <- reactive({
-  stringr::str_replace_all(files(), "_(human|tmuris)_TFs.rds", "")
+  print("tissue_exp")
+  print("in exp")
+  message(stringr::str_replace_all(files_exp(), "_(human|tmuris)_(T|t)(F|f)s.rds", ""))
+  stringr::str_replace_all(files_exp(), "_(human|tmuris)_(T|t)(F|f)s.rds", "")
 })
 
 dataModal_exp <- function(failed = FALSE) {
@@ -67,26 +73,30 @@ observeEvent(input$btnGTEx, {
     return()
   }
   
+  
   if (identical(inputTFs(), previousExpInputTFs())) {
     return()
   }
-  
+  message("lets show the modal")
   showModal(dataModal_exp())
 })
 
 observeEvent(input$okExpBtn, {
+  message("ok btn pressed")
+  message(Sys.time())
   removeModal()
   
   symbols <- c(inputTFs())
   message("creating plots for the following genes:", symbols)
   nrFigs <- length(symbols)
   
-  # Create a spinner overlay.
-  spinner <- waiter::Waiter$new(html = waiter::spin_folding_cube())
-  spinner$show()
+  
+  waiter <- waiter::Waiter$new()
+  waiter$show()
+  on.exit(waiter$hide())
   
   notification_exp <- showNotification(
-    glue::glue("Loading Expression data. This might take a few seconds. If you have many input genes, it might take additional time until all slides are rendered"), 
+    glue::glue("Loading data and calculating plots. This might take a few seconds. With many input genes, it might take additional time until all slides are rendered after the calculation."), 
     type = "message", duration = NULL, closeButton = TRUE
   )
   on.exit(removeNotification(notification_exp), add = TRUE)
@@ -99,12 +109,17 @@ observeEvent(input$okExpBtn, {
     selected_tissue_target <- selected_tissue_start
   }
   
+  print("the following files will be loaded")
+  message(file.path(folderInfo_exp()$folder_path, paste0(selected_tissue_start, folderInfo_exp()$file_ending)))
+  message(file.path(folderInfo_exp()$folder_path, paste0(selected_tissue_target, folderInfo_exp()$file_ending)))
+          
   expression_data_start <- readRDS(
-    file.path(folderInfo()$folder_path, paste0(selected_tissue_start, folderInfo()$file_ending))
+    file.path(folderInfo_exp()$folder_path, paste0(selected_tissue_start, folderInfo_exp()$file_ending))
   )
   expression_data_target <- readRDS(
-    file.path(folderInfo()$folder_path, paste0(selected_tissue_target, folderInfo()$file_ending))
+    file.path(folderInfo_exp()$folder_path, paste0(selected_tissue_target, folderInfo_exp()$file_ending))
   )
+  
   
   # Apply filtering only if the organism is human.
   if (input$radioOrgDorothea == "human") {
@@ -121,7 +136,7 @@ observeEvent(input$okExpBtn, {
     ]
   }
   
-  columns_to_keep <- c("cell_ontology_class", "free_annotation", "broad_cell_class")
+  columns_to_keep <- c("cell_ontology_class", "free_annotation")
   
   # Build carousel screens with a progress indicator.
   screens <- vector("list", nrFigs)
@@ -157,6 +172,22 @@ observeEvent(input$okExpBtn, {
       target_id <- paste0("plotly_target_", gene)
       
       output[[start_id]] <- plotly::renderPlotly({
+        
+        if (!gene %in% names(expression_data_start)) {
+          return(
+            plotly::plot_ly() %>% 
+              plotly::layout(
+                annotations = list(
+                  x = 0.5, y = 0.5,
+                  text = paste("No expression data found for", gene, 
+                               ". Check for spelling errors and if you used the official gene symbol"),
+                  showarrow = FALSE,
+                  xref = 'paper', yref = 'paper'
+                )
+              )
+          )
+          }
+        
         gene_data_start <- dplyr::select(
           expression_data_start,
           dplyr::all_of(c(gene, columns_to_keep))
@@ -186,6 +217,11 @@ observeEvent(input$okExpBtn, {
       })
       
       output[[target_id]] <- plotly::renderPlotly({
+        
+        if (!gene %in% names(expression_data_target)) {
+          return()
+        }
+        
         gene_data_target <- dplyr::select(
           expression_data_target,
           dplyr::all_of(c(gene, columns_to_keep))
@@ -217,6 +253,23 @@ observeEvent(input$okExpBtn, {
       # In single tissue mode, render one plot.
       plot_id  <- paste0("plotly_", gene)
       output[[plot_id]] <- plotly::renderPlotly({
+        
+        
+        if (!gene %in% names(expression_data_start)) {
+          return(
+            plotly::plot_ly() %>% 
+              plotly::layout(
+                annotations = list(
+                  x = 0.5, y = 0.5,
+                  text = paste("No expression data found for", gene, 
+                               ". Check for spelling errors and if you used the official gene symbol"),
+                  showarrow = FALSE,
+                  xref = 'paper', yref = 'paper'
+                )
+              )
+          )
+        }
+        
         gene_data <- dplyr::select(
           expression_data_start,  # same tissue used for start and target
           dplyr::all_of(c(gene, columns_to_keep))
@@ -253,7 +306,6 @@ observeEvent(input$okExpBtn, {
   })
   
   previousExpInputTFs(inputTFs())
-  spinner$hide()
 })
 
 observeEvent(input$changeTissues, {

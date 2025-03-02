@@ -11,7 +11,7 @@ selectedGeneTFTF <- reactiveVal(NULL)
 
 # Create content for the carousel
 
-folderInfo <- reactive({
+folderInfoTFTF <- reactive({
   if (input$radioOrgDorothea == "human") {
     folder <- "hs_tfs_rds_files"
     file_ending <- "_human_TFs.rds"
@@ -25,32 +25,32 @@ folderInfo <- reactive({
   )
 })
 
-files <- reactive({
-  list.files(folderInfo()$folder_path)
+filesTFTF <- reactive({
+  list.files(folderInfoTFTF()$folder_path)
 })
 
-tissues_exp <- reactive({
-  stringr::str_replace_all(files(), "_(human|tmuris)_TFs.rds", "")
+tissues_exp_tftf <- reactive({
+  stringr::str_replace_all(filesTFTF(), "_(human|tmuris)_(T|t)(F|f)s.rds", "")
 })
 
 dataModalExpTFTF <- function(failed = FALSE) {
   modalDialog(
-    radioButtons("compareTissuesMining", "Display Option", 
+    radioButtons("compareTissuesTFTF", "Display Option", 
                  choices = c("Single Tissue" = "single", "Compare Two Tissues" = "compare"), 
                  selected = "compare", inline = TRUE),
     
     selectizeInput("selectTissueExpStartTFTF", 
                    "Tissue",
-                   choices = tissues_exp(),  # placeholder choices; replace with your reactive list if needed
-                   selected = tissues_exp()[1],
+                   choices = tissues_exp_tftf(),  # placeholder choices; replace with your reactive list if needed
+                   selected = tissues_exp_tftf()[1],
                    width = "230px"),
     
     conditionalPanel(
-      condition = "input.compareTissuesMining == 'compare'",
+      condition = "input.compareTissuesTFTF == 'compare'",
       selectizeInput("selectTissueExpTargetTFTF",
                      "Target Tissue",
-                     choices = tissues_exp(),  # placeholder choices
-                     selected = tissues_exp()[2],
+                     choices = tissues_exp_tftf(),  # placeholder choices
+                     selected = tissues_exp_tftf()[2],
                      width = "230px")
     ),
     
@@ -96,7 +96,7 @@ observeEvent(input$btnTFTF, ({
   currentTFs <- inputTFs()
   
   if (identical(currentTFs, previousTftfInputTFs())) {
-    print("same input TFs")
+    print("same input TFs in tftf")
     return()
   }
   
@@ -324,17 +324,17 @@ observeEvent(input$okTissueTFTF, {
   
   # Get selected tissues and determine compare mode
   tissue_start <- input$selectTissueExpStartTFTF
-  compare_mode <- (input$compareTissuesMining == "compare")
+  compare_mode <- (input$compareTissuesTFTF == "compare")
   tissue_target <- if (compare_mode) input$selectTissueExpTargetTFTF else NA
   
 
   # Load expression data for the start tissue (and for target if needed)
   expr_data_start <- readRDS(
-    file.path(folderInfo()$folder_path, paste0(tissue_start, folderInfo()$file_ending))
+    file.path(folderInfoTFTF()$folder_path, paste0(tissue_start, folderInfoTFTF()$file_ending))
   )
   if (compare_mode) {
     expr_data_target <- readRDS(
-      file.path(folderInfo()$folder_path, paste0(tissue_target, folderInfo()$file_ending))
+      file.path(folderInfoTFTF()$folder_path, paste0(tissue_target, folderInfoTFTF()$file_ending))
     )
   }
  
@@ -352,8 +352,17 @@ observeEvent(input$okTissueTFTF, {
     }
   }
   
+  if (!(gene_symbol %in% colnames(expr_data_start))) {
+    shinyalert::shinyalert(
+      "Missing Data",
+      paste("No expression data found for gene", gene_symbol),
+      type = "warning"
+    )
+    return()
+  }
+  
   # Define columns to keep for plotting
-  columns_to_keep <- c("cell_ontology_class", "free_annotation", "broad_cell_class")
+  columns_to_keep <- c("cell_ontology_class", "free_annotation")
   
   if (compare_mode && tissue_start != tissue_target) {
  

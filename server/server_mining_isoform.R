@@ -15,6 +15,7 @@ observeEvent(input$btnIsoforms, {
     shinyalert::shinyalert("Not Supported for Mouse data",
                            "We are sorry, but the Differention Potential calculations are based on human data only",
                            type = "error")
+    return()
   }
   
   if(!exists("isoformTFs_pseudotimes")){
