@@ -7,7 +7,9 @@ observeEvent(input$actnBtnSignature, {
     tabsetPanel(
       tabPanel("OR Analysis", source("doc/doc_ORA.R", local=T)),
       tabPanel("GSEA", source("doc/doc_GSEA.R", local=T)),
-      tabPanel("GTex Tissue Expression", source("doc/doc_GTEx.R", local=T)),
+      tabPanel("Tissue Expression", source("doc/doc_expression.R", local=T)),
+      tabPanel("TF Cofactors", source("doc/doc_tcof.R", local=T)),
+      tabPanel("TT-TF Interaction", source("doc/doc_tftf.R", local=T)),
       tabPanel("Isoform Potential", source("doc/doc_isoform.R", local=T)),
       tabPanel("TFA Analysis", source("doc/doc_TFA.R", local=T))
     )
