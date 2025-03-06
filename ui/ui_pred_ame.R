@@ -61,9 +61,16 @@ tabPanel(
                 ),
                 
                 radioButtons("radioTFBSDB", h3("TFBS Database"), inline = FALSE,
-                             choices = list("Hocomoco Mouse v11" = "hocoMouse", "Hocomoco Human v11" = "hocoHuman","JASPAR Vertebrate ’22 " = "jaspar"),selected = "hocoMouse"),
+                             choices = list("Hocomoco Mouse v11" = "hocoMouse", 
+                                            "Hocomoco Human v11" = "hocoHuman",
+                                            "Hocomoco Core v13" = "hocoCoreV13",
+                                            "JASPAR Vertebrates Core ’24 " = "jaspar"),
+                                            selected = "hocoMouse"),
+                
                 radioButtons("radioBg", h3("Background"), inline = FALSE,
-                             choices = list("GC Matched (more accurate)" = "gcmatched", "shuffled (faster)" = "shuffled"),selected = "shuffled")
+                             choices = list("GC Matched (more accurate)" = "gcmatched", 
+                                            "shuffled (faster)" = "shuffled"),
+                             selected = "shuffled")
             ),
             div(class="center-flex",
                 actionButton("btnRunAME", "Run Prediction with AME", icon = icon("cocktail")),
@@ -72,7 +79,7 @@ tabPanel(
   ),
   
   div(id="container-ame-bottom",
-      tableOutput("ame-res"),
-      downloadButton("download-ame")
+      DT::dataTableOutput("ame_res"),
+      downloadButton("download_ame")
   ),
 )
