@@ -24,21 +24,21 @@ function(input, output, session) {
   
   #docker run -p 8000:8000 -v /host/path/to/papers:/app/papers paperqa-endpoint
   
-     
-  #source("server/server_explore.R", local=T)
+  source("utils/helper_functions.R", local=T)    
+  source("server/server_explore.R", local=T)
   source("server/server_discovery.R", local=T)
-   source("server/server_doc.R", local=T)
-  # source("utils/utils_enrichment.R")
-  # source("server/server_mining_set_cond.R", local=T) 
-  # source("server/server_mining_network.R", local=T)
-  # source("server/server_mining_ora.R", local=T)
-  # source("server/server_mining_gsea.R", local=T)
-  # source("server/server_mining_exp.R", local=T)
-  # source("server/server_mining_tfcof.R", local=T)
-  # source("server/server_mining_tftf.R", local=T)
-  # source("server/server_mining_isoform.R", local=T)
-  # source("server/server_mining_tfa.R", local=T)
-  # source("server/server_login.R", local=T)
+  source("server/server_doc.R", local=T)
+  source("utils/utils_enrichment.R")
+  source("server/server_mining_set_cond.R", local=T)
+  source("server/server_mining_network.R", local=T)
+  source("server/server_mining_ora.R", local=T)
+  source("server/server_mining_gsea.R", local=T)
+  source("server/server_mining_exp.R", local=T)
+  source("server/server_mining_tfcof.R", local=T)
+  source("server/server_mining_tftf.R", local=T)
+  source("server/server_mining_isoform.R", local=T)
+  source("server/server_mining_tfa.R", local=T)
+  source("server/server_login.R", local=T)
   
   #remove after debugging
   #shinyjs::runjs("$(document).ready(function() { $('#btnCreateDoro').click(); });")
