@@ -79,7 +79,7 @@ fluidRow(
                "radioOrgDorothea",
                "Organism",
                choices = list("human" = "human", "mouse" = "mouse"),
-               selected = "human",
+               selected = "mouse",
                inline = T
              ),
       ),

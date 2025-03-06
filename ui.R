@@ -3,13 +3,13 @@ library(visNetwork)
 library(plotly)
 library(DT)
 library(shinyglide) 
-           
-                     
-fluidPage(         
-            
+source("utils/utils_popover.R")             
+                             
+fluidPage(            
+             
   tags$head(
     #for fileinput in AME?  
-     tags$script(src = "load-example.js"),
+     tags$script(src = "load-example.js"), 
      
      tags$style(HTML("
       pre {
@@ -37,7 +37,7 @@ fluidPage(
       clearTimeout(timeout);
     };
   ", functions = c("idleTimer", "resetIdleTimer")),
-                    
+                     
   navbarPage(
     id = "menu",
     htmltools::includeScript("www/popover.js"),
@@ -49,18 +49,18 @@ fluidPage(
                         "DiReG-App 2024 (v1.0.0)",
                         ),
     shinyjs::hidden(textInput("csrf_token", "CSRF Token")),
-    
-    source("ui/ui_explore.R")$value,              
+      
+    source("ui/ui_pred_ame.R")$value,
     source("ui/ui_mining.R")$value,         
+    source("ui/ui_explore.R")$value,              
     tabPanel("Login", uiOutput("login_tabset") ),
     source("ui/ui_home.R")$value,
       
-    source("ui/ui_pred_ame.R")$value,
     
     source("ui/ui_documentation.R")$value,
     
-          
-        
+              
+         
     hr()  
   )        
                             

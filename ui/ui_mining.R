@@ -83,7 +83,7 @@ tabPanel("Signature Mining",
                                    hr(),
                                    hr(),
                                    h3('Expression Comparision', align="center"),
-                                   div(class="vw70", uiOutput("carousel"))
+                                   div(class="vw70", uiOutput("carousel"), actionButton("changeTissues", "Change Tissues"))
                   ),
                   conditionalPanel('output.cond_tfcof == "1"', 
                                    hr(),
