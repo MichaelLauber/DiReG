@@ -16,7 +16,7 @@ div(
     from target cells, and the choice of background sequences, whether shuffled 
     or derived from natural genomic sequences. These choices are crucial for producing high-quality results.
     "),
-  p("Hammelman et al. conducted a systematic comparison of nine computational 
+  p(a(href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10460539/", "Hammelman et al. "), "conducted a systematic comparison of nine computational 
     techniques to determine the most reliable approaches for identifying potential 
     reprogramming factors using gene expression and chromatin accessibility data. 
     They conducted a comprehensive and consistent assessment of nine methods: 

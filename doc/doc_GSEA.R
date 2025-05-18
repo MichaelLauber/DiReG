@@ -25,6 +25,9 @@ div(
     a(href = "https://www.gsea-msigdb.org/gsea/msigdb", "Molecular Signatures Database (MSigDB)"),
     "collections 'Hallmark Gene Sets,' 'Canonical Pathways Gene Sets,' 
     'Gene Ontology Gene Sets,' and 'Cell Type Signature Gene Sets' for either humans or mice."),
+  p("As in ORA, to further validate the result, if users log in and upload their OpenAI API key, 
+  they can easily interact with ChatGPT to analyze their final gene sets and determine 
+  whether they exhibit specificity for a particular cell type."),
   
   h3("Example Output"),
   img(src="gsea.png", alt="example gsea figure"),

@@ -37,6 +37,9 @@ p("Here, 'nodes' represent all nodes in the displayed Dorothea network which was
 p("The final reault is a dotplot created with Plotly and a table of all results. 
   The user can either inspect the results by hovering through the plot or directly 
   search a specific geneset/pathway in the table."),
+p("In addition, to further validate the result, if users log in and upload their OpenAI API key, 
+  they can easily interact with ChatGPT to analyze their final gene sets and determine 
+  whether they exhibit specificity for a particular cell type."),
 h3("Example output"),
   img(src = "ora.png", alt ="Image Description")
 )
