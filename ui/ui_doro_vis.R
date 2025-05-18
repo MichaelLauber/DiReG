@@ -1,19 +1,5 @@
 source(file.path("utils", "utils_popover.R"))
 
-# titleWithPopover <- function(title, popover_title, popover_body) {
-#   htmltools::span(
-#     class = "popover-title",
-#     title,
-#     shiny::icon(
-#       name = "circle-info",
-#       style = "cursor: pointer;",
-#       `data-bs-toggle` = "popover",
-#       `data-bs-trigger` = "hover",
-#       title = popover_title,
-#       `data-bs-content` = popover_body
-#     )
-#   )
-# }
 
 fluidRow(
   column(12, div(
@@ -24,13 +10,14 @@ fluidRow(
     div(id="networkContainer", 
       conditionalPanel(
         condition = 'window.cond_visnet == "1"',
-        div(h2("Explore a set of Transcription factors"),
-            
+        div(h2("Explore Transcription Factors"),
+            hr(),
             p(HTML("<strong>OR Analysis:</strong> Performs Overrepresentation Analysis based on the input TFs and their targets.")),
             p(HTML("<strong>GSEA:</strong> Performs Geneset Enrichment Analysis based on the input TFs and their targets. 
                     Analysis is performed on gene sets from (<a href='https://www.gsea-msigdb.org/gsea/msigdb' target='_blank'>MigSigDB.</a>); TFs, interaction with higher confidence, 
                     and genes more closely regulated by the input TF get a higher rank.")),
-            p(HTML("<strong>GTEx Tissue Expression:</strong> Explore the expression of input TFs in different tissues based on (<a href='https://gtexportal.org/home/' target='_blank'>GTEx data</a>).")),
+            p(HTML("<strong>Tissue Expression:</strong> Explore the expression of input TFs in different tissues based on single cell data from 
+                   <a href='https://tabula-sapiens.sf.czbiohub.org/' target='_blank'>Tabula Sapiens</a> and <a href='https://tabula-muris-senis.sf.czbiohub.org' target='_blank'>Tabula Muris Senis</a>.")),
             
             p(HTML("<strong>TF Cofactors:</strong> Explore with your Input TFs interacting Cofactors  (<a href='https://academic.oup.com/nar/article/45/D1/D145/2333914' target='_blank'>Schemeier et al.</a>).")),
             
@@ -79,7 +66,7 @@ fluidRow(
                "radioOrgDorothea",
                "Organism",
                choices = list("human" = "human", "mouse" = "mouse"),
-               selected = "mouse",
+               selected = "human",
                inline = T
              ),
       ),

@@ -1,7 +1,7 @@
 function(input, output, session) {
   
   options(shiny.error = browser)   
-
+ 
    
   # Set your API key
   openai_key    <- reactiveVal(NULL)
@@ -22,9 +22,7 @@ function(input, output, session) {
   # Define the API endpoint
   url <- "https://api.openai.com/v1/chat/completions" 
   
-  #docker run -p 8000:8000 -v /host/path/to/papers:/app/papers paperqa-endpoint
-  
-  source("utils/helper_functions.R", local=T)    
+  #source("utils/helper_functions.R", local=T)    
   source("server/server_explore.R", local=T)
   source("server/server_discovery.R", local=T)
   source("server/server_doc.R", local=T)
@@ -40,13 +38,9 @@ function(input, output, session) {
   source("server/server_mining_tfa.R", local=T)
   source("server/server_login.R", local=T)
   
-  #remove after debugging
   #shinyjs::runjs("$(document).ready(function() { $('#btnCreateDoro').click(); });")
-  #shinyjs::runjs("$(document).ready(function() { $('#btnGTEx').click(); });")
   
   
-    
-   
 } 
   
 

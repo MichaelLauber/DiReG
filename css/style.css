@@ -173,7 +173,20 @@ h3, .h3 {
   margin-top: 0.3rem;
 }
 
-/**/
+/* 
+/* Withe background for Autocomplete*/
+.ui-menu {
+  background-color: white !important;
+  border: 1px solid #ccc;
+}
+.ui-menu-item {
+  background-color: white !important;
+}
+.ui-menu-item:hover, .ui-menu-item .ui-state-active {
+  background-color: #f0f0f0 !important;
+} 
+
+*/
 
 .action-btn-custom {
       width: 200px;  /* Set a fixed width */
@@ -182,3 +195,5 @@ h3, .h3 {
       font-size: 16px;  /* Ensure consistent font size */
     }
 
+
+    
