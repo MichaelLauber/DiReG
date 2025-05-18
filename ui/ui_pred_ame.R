@@ -43,21 +43,20 @@ tabPanel(
               fileInput("fileAmeTarget", h3("Select Chromatin Data Target Cell"))
             ),
             div(id="container-ame-radios",
-                div(radioButtons("radioRefG", h3("Reference Genome"), inline = TRUE,
-                                 choices = list(
-                                   "mm10" = "mm10",
-                                   "mm39" ="mm39",
-                                   "hg19" = "hg19",
-                                   "hg38" = "hg38"
-                                   
-                                 ), selected = "mm10"),
-                    radioButtons("radioRefG", "", inline = TRUE,
-                                 choices = list(
-                                   "GRCm38" = "GRCm38",
-                                   "GRCm39"= "GRCm39",
-                                   "GRCh37" = "GRCh37",
-                                   "GRCh38" = "GRCh37"
-                                 ), selected = "mm10"),
+                div(
+                  radioButtons("radioRefG", h3("Reference Genome"), 
+                               choices = list(
+                                 "mm10" = "mm10",
+                                 "mm39" = "mm39",
+                                 "GRCm38" = "GRCm38",
+                                 "GRCm39" = "GRCm39",
+                                 "hg19" = "hg19",
+                                 "hg38" = "hg38",
+                                 "GRCh37" = "GRCh37",
+                                 "GRCh38" = "GRCh38"
+                               ), 
+                               selected = "mm10",
+                               inline = FALSE)
                 ),
                 
                 radioButtons("radioTFBSDB", h3("TFBS Database"), inline = FALSE,

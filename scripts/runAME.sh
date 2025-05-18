@@ -8,4 +8,5 @@ outDir=$4
 
 
 #/nfs/home/users/michaell/meme/bin/ame --control ${homer_background} -oc ${outDir}  ${input} ${motifFile}
-scripts/ame --control ${homer_background} -oc ${outDir}  ${input} ${motifFile}
+#scripts/ame --control ${homer_background} -oc ${outDir}  ${input} ${motifFile}
+ame --control ${homer_background} -oc ${outDir}  ${input} ${motifFile}
