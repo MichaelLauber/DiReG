@@ -30,45 +30,61 @@ data <- reactive({
     dplyr::select(from, to, mor, confidence)
 })
 
+observe({
+  # Get unique TFs from the data reactive
+  auto_complete_tfs <- unique(data()$from)
+  # Send the TF list to JavaScript
+  session$sendCustomMessage("updateTFsSource", auto_complete_tfs)
+})
+
 #loads example TFs in the input field 
 observeEvent(input$btnMiningExample, {
-  value <- "HNF1A HNF4A ONECUT1 ATF5 PROX1 CEBPA"
+  value <- "HNF1A HNF4A ONECUT1 ATF5 PROX1 CEBPA" ## Use smaller example set
   updateTextInput(session, "inputTextTFs", value=value)
 })
 
 tfList <- reactiveVal(NULL)
 
 observeEvent(list(input$btnCreateDoro, organism()), {
-  
+
+
+  if (is.null(input$inputTextTFs) || input$inputTextTFs == "") {
+    showModal(modalDialog("The input field is empty!", easyClose = TRUE))
+    return()
+  }
+
+  message("creating the network")
   networkCreated <<- TRUE
   btnCreateDoroPressed(TRUE)
-  
+
   raw_input <- input$inputTextTFs
   current_org <- organism()  # get current organism value
-  
+
   # Retrieve the previous stored input (a list with raw and org)
   prev <- previousInput()
-  
+
   # Only skip re-computation if BOTH the raw input and organism haven't changed
   if (!is.null(prev$raw) && raw_input == prev$raw &&
       !is.null(prev$org) && current_org == prev$org) {
     message("Same input and same organism, skipping TF re-computation.")
     return()
   }
-  
+  hideAll()
+  resetBtns()
+
   # Update the stored input with the new raw input and organism
   previousInput(list(raw = raw_input, org = current_org))
-  
+
   cond_visnet(0)
   shinyjs::runjs(sprintf('window.cond_visnet = "%s"', cond_visnet()))
-  
+
   shinyjs::toggle(id = "networkContainer", condition = TRUE)  # Show the network container
   shinyjs::toggle(id = "expandButtonContainer", condition = FALSE)  # Hide the button container
-  
+
   # Split and clean the input text
   split_result <- stringr::str_split(raw_input, "[,;\\s]+") %>% unlist()
   processed_input <- split_result[split_result != ""]
-  
+
 
   # Perform the conversion using gprofiler2
   result <- gprofiler2::gconvert(
@@ -84,12 +100,13 @@ observeEvent(list(input$btnCreateDoro, organism()), {
       TRUE        ~ name
     )) %>%
     dplyr::pull(output)
-  
+
   # Update the reactive value that stores the TF list
   tfList(result)
   message("Computed new TF list:")
   message(result)
-})
+} , ignoreInit = TRUE)
+
 
 
 # 3. Provide a reactive that simply returns tfList
@@ -153,7 +170,7 @@ edges <- reactive({
   } else {
     edges <- edges1
   }
-
+  
   
   nrEdges <- dim(edges)[1]
   if(nrEdges >100){
@@ -216,29 +233,34 @@ edgeLabel <- reactive({
 })
 
 output$visNet_dorothea <- renderVisNetwork({
-  
+
+  #req(networkCreated, msg = "Please click the RUN button to create network")
+  req(!is.null(nodes()) && nrow(nodes()) > 0, msg = "Network data is being processed...")
+
   # for debugging TfsSelection can be replace by inputTF()
   TfsSelection <-  inputTFs()[inputTFs() %in% nodes()$id]
-  
+
   TFsNotInDoro <- inputTFs()[!(inputTFs() %in% nodes()$id)]
-  
+
+
   #warning if the selected TF is not part of the dorothea network
   if(!dropdownSelected()){
-    
+
     if(length(TfsSelection) == 0  ){
       shinyalert::shinyalert("Please enter valid TFs to the input field before pressing the RUN button",
                              type = "warning")
       return()
-    } 
-    
+    }
+
     if(length(TFsNotInDoro) != 0){
       shinyalert::shinyalert(glue::glue(' Transcription factors "{TFsNotInDoro}" is not contained in the Dorothea network'),
                              "Please check spelling and use gene symbols",
                              type = "warning")
-    } 
+    }
   }
-  
-  
+
+  message("Now Generating the network")
+
   visNetwork(
     nodes(),
     edges(),
@@ -273,7 +295,7 @@ output$visNet_dorothea <- renderVisNetwork({
                                        values = TfsSelection)) %>%
     visLegend(addEdges = edgeLabel()) %>%
     visPhysics(stabilization = FALSE)
-  
+
 })
 
 
@@ -287,3 +309,4 @@ output$btnDownloadDorothea <- downloadHandler(
     write.csv(edges()[,c(1:4)], file)
   }
 )
+
