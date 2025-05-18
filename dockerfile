@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     vim \
     perl \
     unzip \
+    bedtools \
     && rm -rf /var/lib/apt/lists/*
     
 
@@ -39,24 +40,53 @@ RUN wget --no-verbose https://download3.rstudio.org/ubuntu-14.04/x86_64/VERSION 
 # Step 4: Setup renv
 RUN R -e "install.packages('renv', repos='https://cloud.r-project.org')"
 
-    
 COPY renv.lock renv.lock
 RUN R -e "renv::restore()"
 
+# Install HOMER in /opt/homer
+RUN mkdir -p /opt/homer \
+    && cd /opt/homer \
+    && wget --no-verbose -O configureHomer.pl http://homer.ucsd.edu/homer/configureHomer.pl \
+    && perl configureHomer.pl -install \
+    && chmod -R a+rx /opt/homer
+
+# Update PATH to include MEME Suite and HOMER binaries
+ENV PATH="/opt/homer/bin:${PATH}"
+
+
+# Install MEME Suite from source (command-line tools only)
+RUN wget --no-verbose -O meme.tar.gz https://meme-suite.org/meme-software/5.5.7/meme-5.5.7.tar.gz \
+    && tar zxf meme.tar.gz \
+    && cd meme-5.5.7 \
+    && ./configure --prefix=/opt/meme --enable-build-libxml2 --enable-build-libxslt \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf meme-5.5.7 meme.tar.gz
+
+ENV PATH="/opt/meme/bin:${PATH}"
+
+RUN R -e "install.packages('reshape2', repos='https://cloud.r-project.org')"
+
 # Step 5: Copy only the needed Shiny app code
+COPY refGenome /srv/shiny-server/refGenome
+COPY data /srv/shiny-server/data
 COPY css /srv/shiny-server/css
 COPY doc /srv/shiny-server/doc
 COPY sbs /srv/shiny-server/sbs
 COPY www /srv/shiny-server/www
 COPY utils /srv/shiny-server/utils
-COPY server /srv/shiny-server/server
-COPY ui /srv/shiny-server/ui
 COPY ui.R /srv/shiny-server/ui.R
-COPY server.R /srv/shiny-server/server.R
-COPY global.R /srv/shiny-server/global.R
+COPY ui /srv/shiny-server/ui
+COPY login /srv/shiny-server/login
 
+
+COPY scripts /srv/shiny-server/scripts
+COPY server /srv/shiny-server/server
+COPY server.R /srv/shiny-server/server.R
 
 RUN chown -R shiny:shiny /srv/shiny-server
+
 
 # Step 6: Expose port & specify the run command
 EXPOSE 3232
