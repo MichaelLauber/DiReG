@@ -2,7 +2,10 @@ tabPanel("Signature Mining",
          div(id="container-mining-input", 
              div(
                style = "display: flex; align-items: center;",
+               div(id = "inputTextTFs-container", 
+               #textInput("inputTextTFs", "", placeholder = "Enter TFs")
                textInput("inputTextTFs", "", value = "HNF1A"),
+               ),
                div(
                  style = "margin-left: 5px;",
                  titleWithPopover(
@@ -89,19 +92,28 @@ tabPanel("Signature Mining",
                                    hr(),
                                    hr(),
                                    h3('TF Cofactors', align="center"),
-                                   div(class="vw70", uiOutput("carousel_tfcof"))
+                                   div(class="vw70", uiOutput("carousel_tfcof")),
+                                   p("Transcription factor cofactors (TcoFs) are proteins that, while not transcription factors themselves, physically interact with transcription factors to modulate gene expression. 
+                                     These cofactors are characterized by evidence of involvement in transcriptional regulation and localization within the cell nucleus. 
+                                     Based on the strength and type of evidence for these two key characteristics, TcoFs are classified into four distinct confidence categories.
+                                     Clicking on a TcoF allows to explore its tissue expression.")
                   ),
                   conditionalPanel('output.cond_tftf == "1"', 
                                    hr(),
                                    hr(),
                                    h3('TF-TF Interactions', align="center"),
-                                   div(class="vw70", uiOutput("carousel_tftf"))
+                                   div(class="vw70", uiOutput("carousel_tftf")),
+                                   p("TF-TF interactions are based on filtered data from BioGRID, IntAct, and Reactome, focusing exclusively on physical and direct interactions (MI:0915 and MI:0407) to show potential cooperative binding events. 
+                                     Clicking on the TF allows you to explore the expression levels of the TF in chosen tissues and can give hints it might be a suitable target.")
                   ),
                   conditionalPanel('output.cond_isoforms == "1"', 
                                    hr(),
                                    hr(),
                                    h3('Differentiation Potential TF Isoforms', align="center"),
                                    div(class="vw70", plotlyOutput("isoforms_plot")),
+                                   p("Transcription factors (TFs) exist in multiple isoforms due to alternative splicing, with approximately 1,800 TF genes producing over 3,500 distinct variants that can differ in DNA binding properties, activator/repressor functions, and dimerization capabilities. 
+                                     The figure incorporates data from Joung et al. (2022), who created a comprehensive library of all human TF splice isoforms and measured their effects on cellular differentiation in hESCs through pseudotime trajectory analysis, 
+                                     allowing users to identify specific isoforms that may be more effective for transdifferentiation experiments than using the canonical TF.")
                                    ##source("ui/ui_isoforms.R")$value,
                   ),
                   
@@ -111,7 +123,10 @@ tabPanel("Signature Mining",
                                    h3('TFA Analysis', align="center"),
                                    div(class="vw70",
                                        plotlyOutput("tfa_plot"),
-                                       DTOutput("tbl_tfa")
+                                       DTOutput("tbl_tfa"),
+                                       br(),
+                                       p("TFs with high activity in the target cell type but low activity in the starting cell type are ideal candidates to drive transdifferentiation via overexpression. 
+                                         In contrast TFs with a high activity in the donor cell type , but low in the target cell type might be targets for repression of the donor cell programm.")
                                    )
                   ),
                   
