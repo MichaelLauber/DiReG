@@ -3,13 +3,16 @@
 # Set variables
 GITHUB_REPO="https://github.com/MichaelLauber/DiReG_APP.git"  
 PROJECT_DIR="direg_project"
-
 echo "Setting up the direg project..."
 
 # Step 1: Clone the repository
 echo "Cloning the repository from GitHub..."
 git clone $GITHUB_REPO $PROJECT_DIR
 cd $PROJECT_DIR || { echo "Failed to change to project directory"; exit 1; }
+
+# Get absolute path of the current directory for volume mounting
+ABSOLUTE_PATH=$(pwd)
+echo "Absolute path of project: $ABSOLUTE_PATH"
 
 # Step 2: Download reference genomes and place them in app/refGenome
 echo "Downloading reference genomes..."
@@ -24,22 +27,16 @@ chmod +x download_zenodo_data.sh
 
 # Step 4: Move the extracted Zenodo files to their correct locations
 echo "Moving files to correct locations..."
-
 echo "Moving all_free_pdfs_index to services/paperqa"
 mv zenodo_data/all_free_pdfs_index services/paperqa/
-
 echo "Moving chromadb_w_openaiembedding_semantic_chuncking to services/RAG"
 mv zenodo_data/chromadb_w_openaiembedding_semantic_chuncking services/RAG/
-
 echo "Moving free_reprogramming_pdfs to services/paperqa"
 mv zenodo_data/free_reprogramming_pdfs services/paperqa/
-
-
 echo "Moving data to app/data"
 mkdir -p app/data/
 mv zenodo_data/data/* app/data
 rmdir zenodo_data
-
 echo "Creating empty login folder as a place holder"
 mkdir -p app/login/
 
@@ -64,6 +61,18 @@ cd app || { echo "Failed to change to app directory"; exit 1; }
 docker build  --no-cache -f dockerfile -t direg:V0 .
 cd ../
 
+echo "Updating ShinyProxy configuration with absolute paths..."
+# Make a backup of the original file
+cp deployment/shinyproxy/application.yml deployment/shinyproxy/application.yml.bak
+
+# Use sed to replace relative paths with absolute paths in application.yml
+sed -i "s|\"../../app/login:/srv/shiny-server/login\"|\"$ABSOLUTE_PATH/app/login:/srv/shiny-server/login\"|g" deployment/shinyproxy/application.yml
+sed -i "s|\"../../app/data:/srv/shiny-server/data\"|\"$ABSOLUTE_PATH/app/data:/srv/shiny-server/data\"|g" deployment/shinyproxy/application.yml
+sed -i "s|\"../../app/refGenome:/srv/shiny-server/refGenome\"|\"$ABSOLUTE_PATH/app/refGenome:/srv/shiny-server/refGenome\"|g" deployment/shinyproxy/application.yml
+
+# Changing permissions of application.yml
+chmod 644 deployment/shinyproxy/application.yml 
+
 # Step 6: Create Docker network
 echo "Creating Docker network direg-net..."
 docker network create direg-net
@@ -74,3 +83,4 @@ echo "  - paperqa-endpoint:V0"
 echo "  - rag_repro:V0"
 echo "  - direg:V0"
 echo "Docker network created: direg-net"
+echo "Absolute paths have been set in application.yml"
