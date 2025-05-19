@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Set variables
-GITHUB_REPO="https://github.com/yourusername/direg.git"  # Dummy URL
+GITHUB_REPO="https://github.com/MichaelLauber/DiReG_APP.git"  
 PROJECT_DIR="direg_project"
 
 echo "Setting up the direg project..."
