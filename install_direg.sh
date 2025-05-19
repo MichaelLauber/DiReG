@@ -25,48 +25,40 @@ chmod +x download_zenodo_data.sh
 # Step 4: Move the extracted Zenodo files to their correct locations
 echo "Moving files to correct locations..."
 
-# Move all_free_pdfs_index to services/paperqa
-if [ -d "all_free_pdfs_index" ]; then
-    echo "Moving all_free_pdfs_index to services/paperqa"
-    mv all_free_pdfs_index services/paperqa/
-fi
+echo "Moving all_free_pdfs_index to services/paperqa"
+mv zenodo_data/all_free_pdfs_index services/paperqa/
 
-# Move chromadb_w_openaiembedding_semantic_chuncking to services/RAG
-if [ -d "chromadb_w_openaiembedding_semantic_chuncking" ]; then
-    echo "Moving chromadb_w_openaiembedding_semantic_chuncking to services/RAG"
-    mv chromadb_w_openaiembedding_semantic_chuncking services/RAG/
-fi
+echo "Moving chromadb_w_openaiembedding_semantic_chuncking to services/RAG"
+mv zenodo_data/chromadb_w_openaiembedding_semantic_chuncking services/RAG/
 
-# Move free_reprogramming_pdfs to services/paperqa
-if [ -d "free_reprogramming_pdfs" ]; then
-    echo "Moving free_reprogramming_pdfs to services/paperqa"
-    mv free_reprogramming_pdfs services/paperqa/
-fi
+echo "Moving free_reprogramming_pdfs to services/paperqa"
+mv zenodo_data/free_reprogramming_pdfs services/paperqa/
 
-# Move data directory to app (if it exists and isn't already there)
-if [ -d "data" ] && [ ! -d "app/data/zenodo_data" ]; then
-    echo "Moving data to app/data"
-    mkdir -p app/data/
-    mv data/* app/data
-    rmdir data
-fi
+
+echo "Moving data to app/data"
+mkdir -p app/data/
+mv zenodo_data/data/* app/data
+rmdir zenodo_data
+
+echo "Creating empty login folder as a place holder"
+mkdir -p app/login/
 
 # Step 5: Build Docker images
 echo "Building Docker images..."
 
-# Build paperqa-endpoint:V0
+
 echo "Building paperqa-endpoint:V0..."
 cd services/paperqa || { echo "Failed to change to paperqa directory"; exit 1; }
 docker build -t paperqa-endpoint:V0 .
 cd ../../
 
-# Build rag_repro:V0
+
 echo "Building rag_repro:V0..."
 cd services/RAG || { echo "Failed to change to RAG directory"; exit 1; }
 docker build -t rag_repro:V0 .
 cd ../../
 
-# Build direg:V0
+
 echo "Building direg:V0..."
 cd app || { echo "Failed to change to app directory"; exit 1; }
 docker build -f dockerfile -t direg:V0 .

@@ -8,7 +8,7 @@ services:
     networks:
       - direg-net
 
-  #persistence instance might not be necessary-> test if it reduces loading time      
+  #persistent instance might not be necessary-> test if it reduces loading time      
   shiny-service:
     image: direg:V0
     user: root 

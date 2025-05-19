@@ -19,11 +19,10 @@ proxy:
     port: 5555
     
   - id: direg
-    display-name: DiREG
+    display-name: DiReG
     description: DiReG WebApp
     container-network: direg-net
     container-image: direg:V0
-    # port: 3232 #explicit configuration probably not necessary;
     container-volumes: 
       - "../../app/login:/srv/shiny-server/login"
       - "../../app/data:/srv/shiny-server/data"

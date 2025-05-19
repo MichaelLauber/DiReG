@@ -1,5 +1,5 @@
 app/data/*
-app/login/
+app/login/*
 app/shiny-run.R
 app/refGenome
 app/.Rhistory
