@@ -13,8 +13,8 @@ tabPanel("About",
          tags$ul(style = "display: inline-block; text-align: left;",
                  tags$li("Please open an issue on our",
                          a(href = "https://github.com/MichaelLauber/DiReG_APP/issues", target = "_blank", "GitHub repository")),
-                 tags$li("Or contact us directly via email:",
-                         a(href = "mailto:michaellauber05@gmail.com", "Michael Lauber"))
+                 tags$li("Or contact us directly via ",
+                         a(href = "mailto:michaellauber05@gmail.com", "email"))
          ),
          
          p("Thank you for using our application!")
