@@ -28,6 +28,7 @@ proxy:
       - "../../app/login:/srv/shiny-server/login"
       - "../../app/data:/srv/shiny-server/data"
       - "../../app/refGenome:/srv/shiny-server/refGenome"
+    port: 3232
 
 logging:
   file:

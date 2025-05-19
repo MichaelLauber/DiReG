@@ -12,3 +12,4 @@ app/.gitignore
 services/RAG/chromadb_w_openaiembedding_semantic_chuncking
 services/paperqa/all_free_pdfs_index
 services/paperqa/free_reprogramming_pdfs
+.Rproj.user
