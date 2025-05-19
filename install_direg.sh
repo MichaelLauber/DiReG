@@ -49,19 +49,19 @@ echo "Building Docker images..."
 
 echo "Building paperqa-endpoint:V0..."
 cd services/paperqa || { echo "Failed to change to paperqa directory"; exit 1; }
-docker build -t paperqa-endpoint:V0 .
+docker build --no-cache -t paperqa-endpoint:V0 .
 cd ../../
 
 
 echo "Building rag_repro:V0..."
 cd services/RAG || { echo "Failed to change to RAG directory"; exit 1; }
-docker build -t rag_repro:V0 .
+docker build  --no-cache -t rag_repro:V0 .
 cd ../../
 
 
 echo "Building direg:V0..."
 cd app || { echo "Failed to change to app directory"; exit 1; }
-docker build -f dockerfile -t direg:V0 .
+docker build  --no-cache -f dockerfile -t direg:V0 .
 cd ../
 
 # Step 6: Create Docker network
