@@ -1,0 +1,37 @@
+version: '3'
+services:
+  rag-service:
+    image: rag_repro:V0
+    container_name: rag_service
+    ports:
+      - "8008:8008"
+    networks:
+      - direg-net
+
+  #persistence instance might not be necessary-> test if it reduces loading time      
+  shiny-service:
+    image: direg:V0
+    user: root 
+    container_name: direg_service
+    networks:
+      - direg-net
+    volumes:
+      - ../../app/login:/srv/shiny-server/login
+      - ../../app/data:/srv/shiny-server/data
+      - ../../app/refGenome:/srv/shiny-server/refGenome
+      
+  shinyproxy:
+    image: openanalytics/shinyproxy:3.1.0
+    container_name: shinyproxy
+    volumes:
+      - ./application.yml:/opt/shinyproxy/application.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./container-logs:/container-logs
+    ports:
+      - "8080:8080"
+    networks:
+      - direg-net
+
+networks:
+  direg-net:
+    external: true

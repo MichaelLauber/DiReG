@@ -1,0 +1,21 @@
+version: '3'
+services:
+  paperqa-service:
+    image: paperqa-endpoint:V0  
+    container_name: paperqa_service
+    ports:
+      - "5555:5555"
+   
+  rag-service:
+    image: rag_repro:V0
+    container_name: rag_service
+    ports:
+      - "8008:8008"
+      
+  shiny-service:
+    image: direg:V0
+    container_name: direg_service
+    ports:
+      - "3232:3232"
+ 
+

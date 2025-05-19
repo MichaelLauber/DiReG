@@ -69,21 +69,20 @@ ENV PATH="/opt/meme/bin:${PATH}"
 RUN R -e "install.packages('reshape2', repos='https://cloud.r-project.org')"
 
 # Step 5: Copy only the needed Shiny app code
-COPY refGenome /srv/shiny-server/refGenome
-COPY data /srv/shiny-server/data
 COPY css /srv/shiny-server/css
 COPY doc /srv/shiny-server/doc
-COPY sbs /srv/shiny-server/sbs
 COPY www /srv/shiny-server/www
 COPY utils /srv/shiny-server/utils
 COPY ui.R /srv/shiny-server/ui.R
 COPY ui /srv/shiny-server/ui
-COPY login /srv/shiny-server/login
-
-
 COPY scripts /srv/shiny-server/scripts
 COPY server /srv/shiny-server/server
 COPY server.R /srv/shiny-server/server.R
+
+#COPY sbs /srv/shiny-server/sbs
+#COPY login /srv/shiny-server/login
+#COPY data /srv/shiny-server/data
+#COPY refGenome /srv/shiny-server/refGenome
 
 RUN chown -R shiny:shiny /srv/shiny-server
 
