@@ -11,7 +11,7 @@ proxy:
   docker:
     internal-networking: true
   specs:
-   - id: paperqa
+  - id: paperqa
     display-name: PaperQA Service
     description: PaperQA Service for Document Processing
     container-network: direg-net
