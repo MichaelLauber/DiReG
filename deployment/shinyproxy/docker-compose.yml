@@ -1,6 +1,6 @@
 version: '3'
 services:
- paperqa-service:
+  paperqa-service:
     image: paperqa-endpoint:V0
     container_name: paperqa_service
     ports:
