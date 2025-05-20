@@ -118,4 +118,4 @@ echo "Files are located in: $OUTPUT_DIR"
 
 # List all downloaded files
 echo "Downloaded files:"
-ls -lh "$OUTPUT_DIR"/*.fa
+ls -lh "$OUTPUT_DIR"/*.fa || true
