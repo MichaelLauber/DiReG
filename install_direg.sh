@@ -57,7 +57,17 @@ OPENAI_FALLBACK_KEY="sk-YOUR_FALLBACK_KEY_HERE"
 cp setup_auth.R app/login/
 
 echo "Creating authentication database and encryption keys..."
-docker run --rm -v "$ABSOLUTE_PATH/app/login:/data" -w /data r-base:latest Rscript setup_auth.R \
+docker run --rm -v "$ABSOLUTE_PATH:/data" -w /data \
+    --entrypoint bash r-base:latest -c "
+    # Install system dependencies
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends libssl-dev libsodium-dev && \
+    
+    # Install R packages
+    R -e \"install.packages(c('DBI', 'RSQLite', 'sodium', 'openssl', 'shinymanager', 'bcrypt', 'optparse'), repos='https://cloud.r-project.org')\" && \
+    
+    # Run the script with parameters
+    Rscript setup_auth.R \
   --passphrase="$DB_PASSPHRASE" \
   --regular_user="$REGULAR_USERNAME" \
   --regular_pwd="$REGULAR_PASSWORD" \
@@ -66,6 +76,7 @@ docker run --rm -v "$ABSOLUTE_PATH/app/login:/data" -w /data r-base:latest Rscri
   --admin_pwd="$ADMIN_PASSWORD" \
   --admin_email="$ADMIN_EMAIL" \
   --api_key="$OPENAI_FALLBACK_KEY"
+  "
 
 # Step 6: Build Docker images
 echo "Building Docker images..."
