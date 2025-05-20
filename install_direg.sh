@@ -2,7 +2,7 @@
 
 # Set variables
 GITHUB_REPO="https://github.com/MichaelLauber/DiReG.git"  
-PROJECT_DIR="direg_project"
+PROJECT_DIR="DiReG_App"
 LOG_FILE="direg_setup.log"
 
 # User configuration for authentication
