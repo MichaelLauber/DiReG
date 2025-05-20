@@ -6,5 +6,5 @@ outDir=$3
 
 
 #/nfs/home/users/michaell/meme/bin/ame --control --shuffle-- -oc ${outDir}  ${input} ${motifFile}
-scripts/ame --control --shuffle-- -oc ${outDir}  ${input} ${motifFile}
-#ame --control --shuffle-- -oc ${outDir}  ${input} ${motifFile}
+#scripts/ame --control --shuffle-- -oc ${outDir}  ${input} ${motifFile}
+ame --control --shuffle-- -oc ${outDir}  ${input} ${motifFile}
