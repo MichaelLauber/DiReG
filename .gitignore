@@ -7,7 +7,12 @@ app/.Rproj.user
 app/.Rprofile
 app/.git.backup
 app/.gitignore
+app/scripts/ame
+app/scripts/bedtools
 
+install_direg_w_login_data.sh
+login_test/
+test_login_setup.sh
 
 services/RAG/chromadb_w_openaiembedding_semantic_chuncking
 services/paperqa/all_free_pdfs_index
