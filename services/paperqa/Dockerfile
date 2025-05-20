@@ -15,12 +15,11 @@ RUN pip install --upgrade pip
 RUN pip install fastapi uvicorn paper-qa pydantic
 
 
-# Copy the existing index folder
-COPY all_free_pdfs_index /app/all_free_pdfs_index
-
-
 # Copy your FastAPI app code into the container
 COPY paperqa_endpoint.py /app/paperqa_endpoint.py
+
+# Copy the existing index folder
+COPY all_free_pdfs_index /app/all_free_pdfs_index
 
 # Expose port 8000
 EXPOSE 5555

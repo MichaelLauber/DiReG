@@ -1,5 +1,13 @@
 version: '3'
 services:
+ paperqa-service:
+    image: paperqa-endpoint:V0
+    container_name: paperqa_service
+    ports:
+      - "5555:5555"
+    networks:
+      - direg-net
+
   rag-service:
     image: rag_repro:V0
     container_name: rag_service

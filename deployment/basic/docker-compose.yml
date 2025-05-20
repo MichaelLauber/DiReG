@@ -17,5 +17,9 @@ services:
     container_name: direg_service
     ports:
       - "3232:3232"
+    volumes:
+      - ../../app/login:/srv/shiny-server/login
+      - ../../app/data:/srv/shiny-server/data
+      - ../../app/refGenome:/srv/shiny-server/refGenome
  
 

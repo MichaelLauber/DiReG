@@ -11,13 +11,6 @@ proxy:
   docker:
     internal-networking: true
   specs:
-  - id: paperqa
-    display-name: PaperQA Service
-    description: PaperQA Service for Document Processing
-    container-network: direg-net
-    container-image: paperqa-endpoint:V0
-    port: 5555
-    
   - id: direg
     display-name: DiReG
     description: DiReG WebApp
