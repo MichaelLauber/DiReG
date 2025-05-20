@@ -55,7 +55,7 @@ results_df <- data.frame(PMID = pmids, Title = titles, stringsAsFactors = FALSE)
 # Use chat gpt to filter out papers from other domains
 ###
 
-api_key <- "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"  
+api_key <- "change"  
 
 classify_paper <- function(title) {
 
