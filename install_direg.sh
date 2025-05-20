@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Set variables
-GITHUB_REPO="https://github.com/MichaelLauber/DiReG_APP.git"  
+GITHUB_REPO="https://github.com/MichaelLauber/DiReG.git"  
 PROJECT_DIR="direg_project"
 echo "Setting up the direg project..."
 
@@ -40,7 +40,34 @@ rmdir zenodo_data
 echo "Creating empty login folder as a place holder"
 mkdir -p app/login/
 
-# Step 5: Build Docker images
+# Step 5: Create login folder and setup authentication files
+echo "Setting up authentication system..."
+mkdir -p app/login/
+
+# User configuration for authentication
+DB_PASSPHRASE="alphaCentaury"
+REGULAR_USERNAME="dummyUser"
+REGULAR_PASSWORD="StrongPW!"
+REGULAR_EMAIL="user@example.com"
+ADMIN_USERNAME="dummyAdmin"
+ADMIN_PASSWORD="StrongPWAdmin"
+ADMIN_EMAIL="admin@example.com"
+OPENAI_FALLBACK_KEY="sk-YOUR_FALLBACK_KEY_HERE"
+
+cp setup_auth.R app/login/
+
+echo "Creating authentication database and encryption keys..."
+docker run --rm -v "$ABSOLUTE_PATH/app/login:/data" -w /data r-base:latest Rscript setup_auth.R \
+  --passphrase="$DB_PASSPHRASE" \
+  --regular_user="$REGULAR_USERNAME" \
+  --regular_pwd="$REGULAR_PASSWORD" \
+  --regular_email="$REGULAR_EMAIL" \
+  --admin_user="$ADMIN_USERNAME" \
+  --admin_pwd="$ADMIN_PASSWORD" \
+  --admin_email="$ADMIN_EMAIL" \
+  --api_key="$OPENAI_FALLBACK_KEY"
+
+# Step 6: Build Docker images
 echo "Building Docker images..."
 
 
@@ -84,3 +111,10 @@ echo "  - rag_repro:V0"
 echo "  - direg:V0"
 echo "Docker network created: direg-net"
 echo "Absolute paths have been set in application.yml"
+
+
+# Step 7: Starting the application
+echo "Starting the application"
+echo "App can be accessed at IP:8080/direg/"
+cd deployment/shinyproxy/
+docker compose up
