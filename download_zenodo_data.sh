@@ -10,7 +10,7 @@ echo "Downloading Zenodo data to: $OUTPUT_DIR"
 # Download the files archive
 ZENODO_URL="https://zenodo.org/api/records/15458798/files-archive"
 echo "Downloading archive from $ZENODO_URL..."
-wget -q --show-progress "$ZENODO_URL" -O files_archive.zip
+wget -q --show-progress --no-check-certificate "$ZENODO_URL" -O files_archive.zip
 
 # Check if download was successful
 if [ $? -ne 0 ]; then
