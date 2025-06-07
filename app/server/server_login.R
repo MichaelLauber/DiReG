@@ -26,9 +26,7 @@ aes_key_openai_api <- readRDS("login/aes_key_openai_api.rds")
 login_mode    <- reactiveVal("login")
 logged_in_user <- reactiveVal(NULL)
 login_attempts <- reactiveValues()
-# openai_key    <- reactiveVal(NULL)
-# favorite_model <- reactiveVal(NULL)
-# key_uploaded  <- reactiveVal(FALSE)
+
 
 output$login_tabset <- renderUI({
   if (is.null(logged_in_user())) {
@@ -47,21 +45,48 @@ output$login_ui <- renderUI({
   if (is.null(logged_in_user())) {
     if (login_mode() == "login") {
       tagList(
+        div(
+          style = "background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;",
+          p("Login to access your personal OpenAI API key management system. Once logged in, you can:"),
+          tags$ul(
+            tags$li("Securely store your OpenAI API key in our encrypted database"),
+            tags$li("Select your preferred AI model (GPT-4o, GPT-4o-mini, o1, o3-mini)"),
+            tags$li("Use your API key for all LLM requests within the application"),
+            tags$li("Update or delete your stored API key at any time")
+          ),
+          p(strong("Your API key is encrypted and stored securely. We never share or misuse your credentials."))
+        ),
         textInput("login_user", "Username"),
         passwordInput("login_password", "Password"),
-        actionButton("login_button", "Login"),
-        br(),
-        actionLink("show_register", "Register")
+        actionButton("login_button", "Login", class = "btn-primary"),
+        br(), br(),
+        actionLink("show_register", "Don't have an account? Register here", 
+                   style = "color: #007bff; text-decoration: none;")
       )
     } else {
       tagList(
-        textInput("register_user", "Username"),
-        passwordInput("register_password", "Password"),
-        passwordInput("confirm_password", "Confirm Password"),
-        textInput("email", "Email"),
-        actionButton("register_button", "Register"),
-        br(),
-        actionLink("show_login", "Back to Login")
+        div(
+          style = "background-color: #e8f4fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;",
+          h4("Create Your Account", style = "color: #2c3e50; margin-top: 0;"),
+          h5("Password Requirements:", style = "color: #495057; margin-bottom: 10px;"),
+          tags$ul(
+            style = "margin-bottom: 15px;",
+            tags$li("At least 8 characters long"),
+            tags$li("At least one uppercase letter (A-Z)"),
+            tags$li("At least one lowercase letter (a-z)"),
+            tags$li("At least one number (0-9)"),
+            tags$li("At least one special character (!@#$%^&*)")
+          ),
+          p(em("Note: All passwords are securely hashed using bcrypt encryption."))
+        ),
+        textInput("register_user", "Username", placeholder = "Choose a unique username"),
+        passwordInput("register_password", "Password", placeholder = "Enter a strong password"),
+        passwordInput("confirm_password", "Confirm Password", placeholder = "Re-enter your password"),
+        textInput("email", "Email", placeholder = "your.email@example.com"),
+        actionButton("register_button", "Create Account", class = "btn-success"),
+        br(), br(),
+        actionLink("show_login", "Already have an account? Login here", 
+                   style = "color: #007bff; text-decoration: none;")
       )
     }
   } else {
@@ -223,14 +248,69 @@ observeEvent(input$logout_button, {
 output$manage_key_ui <- renderUI({
   if (!is.null(logged_in_user())) {
     tagList(
-      textInput("openai_key", "Enter OpenAI Key", value = NULL, placeholder = "Enter your OpenAI key"),
-      actionButton("upload_key_button", ifelse(key_uploaded(), "Update OpenAI Key", "Upload OpenAI Key")),
-      actionButton("delete_key_button", "Delete Key From DB"),
-      checkboxInput("save_key", "Save Key in local DB", FALSE),
-      br(),
-      selectInput("model_dropdown", "Select Favorite OpenAI Model",
-                  choices = c("gpt-4o-mini", "gpt-4o",  "o1", "o3-mini"),
-                  selected = favorite_model())
+      div(
+        style = "background-color: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 20px;",
+        p("Manage your OpenAI API key and model preferences for all LLM requests in this application."),
+        tags$ul(
+          tags$li(strong("Security:"), "Your API key is encrypted using AES-256 encryption before storage"),
+          tags$li(strong("Privacy:"), "Keys are stored locally and never transmitted to third parties"),
+          tags$li(strong("Flexibility:"), "You can update or delete your key at any time"),
+          tags$li(strong("Convenience:"), "Saved keys are automatically loaded when you login")
+        )
+      ),
+      
+      div(
+        style = "background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;",
+        h5("How to get your OpenAI API Key:", style = "color: #495057; margin-top: 0;"),
+        tags$ol(
+          tags$li("Visit ", tags$a("platform.openai.com", href = "https://platform.openai.com", target = "_blank")),
+          tags$li("Sign in to your OpenAI account"),
+          tags$li("Navigate to API → API Keys"),
+          tags$li("Click 'Create new secret key'"),
+          tags$li("Copy the key and paste it below")
+        ),
+        p(em("Note: API keys start with 'sk-' and are typically 51 characters long."))
+      ),
+      
+      textInput("openai_key", "Enter OpenAI API Key", 
+                value = NULL, 
+                placeholder = if(key_uploaded()) "OpenAI key already loaded" else "sk-..."),
+      
+      div(
+        style = "margin-bottom: 15px;",
+        checkboxInput("save_key", 
+                      "Save Key in encrypted database (recommended for frequent use)", 
+                      FALSE),
+        tags$small("Uncheck this if you prefer to enter your key each session.", 
+                   style = "color: #6c757d;")
+      ),
+      
+      actionButton("upload_key_button", 
+                   ifelse(key_uploaded(), "Update OpenAI Key", "Upload OpenAI Key"),
+                   class = "btn-primary",
+                   style = "margin-right: 10px;"),
+      
+      actionButton("delete_key_button", "Delete Key From Database", 
+                   class = "btn-outline-danger"),
+      
+      br(), br(),
+      
+      div(
+        style = "background-color: #e7f3ff; padding: 15px; border-radius: 5px;",
+        h5("Model Selection", style = "color: #004085; margin-top: 0;"),
+        p("Choose your preferred OpenAI model for all LLM requests:"),
+        tags$ul(
+          tags$li(strong("GPT-4o:"), "Most capable model, best for complex tasks"),
+          tags$li(strong("GPT-4o-mini:"), "Faster and more cost-effective, good for most tasks"),
+          tags$li(strong("o1:"), "Advanced reasoning model for complex problem-solving"),
+          tags$li(strong("o3-mini:"), "Latest reasoning model, optimized for efficiency")
+        ),
+        selectInput("model_dropdown", "Select Favorite OpenAI Model",
+                    choices = c("gpt-4o-mini", "gpt-4o", "o1", "o3-mini"),
+                    selected = favorite_model()),
+        tags$small("This model will be used for all AI requests in the application.", 
+                   style = "color: #6c757d;")
+      )
     )
   }
 })
