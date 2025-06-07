@@ -114,7 +114,6 @@ tabPanel("Signature Mining",
                                    p("Transcription factors (TFs) exist in multiple isoforms due to alternative splicing, with approximately 1,800 TF genes producing over 3,500 distinct variants that can differ in DNA binding properties, activator/repressor functions, and dimerization capabilities. 
                                      The figure incorporates data from Joung et al. (2022), who created a comprehensive library of all human TF splice isoforms and measured their effects on cellular differentiation in hESCs through pseudotime trajectory analysis, 
                                      allowing users to identify specific isoforms that may be more effective for transdifferentiation experiments than using the canonical TF.")
-                                   ##source("ui/ui_isoforms.R")$value,
                   ),
                   
                   conditionalPanel('output.cond_tfa == "1"', 
