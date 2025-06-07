@@ -39,9 +39,12 @@ observeEvent(input$actnBtnDiscovery, {
   output$tabsetOutput <- NULL
 })
 
-
-
-# Render the table within the specified div
-output$mockTable <- renderDT({
-  datatable(mock_data, options = list(dom = 't'))
+output$showWelcome <- reactive({
+  is.null(activeButton())
 })
+outputOptions(output, "showWelcome", suspendWhenHidden = FALSE)
+
+# # Render the table within the specified div
+# output$mockTable <- renderDT({
+#   datatable(mock_data, options = list(dom = 't'))
+# })
