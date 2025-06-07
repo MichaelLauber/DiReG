@@ -8,7 +8,7 @@ tabPanel(
   "Explore",
   div(
     id = "exploreHeader",
-    h2(class = "center", "Find experimental validated and inferred Directed Differentiation Protocols"),
+    h2(class = "center", "Find experimental validated and inferred Direct Reprogramming Protocols"),
     hr()
   ),
   

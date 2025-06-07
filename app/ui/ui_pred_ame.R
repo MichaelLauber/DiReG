@@ -1,5 +1,5 @@
 tabPanel(
-  "Discovery",
+  "Discover New TFs",
   h1(class = "center", "Make a prediction with AME"),
   div(
     p("All directed prediction tools up to date are trained on a large dataset and

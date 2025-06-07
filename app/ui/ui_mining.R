@@ -1,4 +1,4 @@
-tabPanel("Signature Mining",  
+tabPanel("Analyze TF Sets",  
          div(id="container-mining-input", 
              div(
                style = "display: flex; align-items: center;",
