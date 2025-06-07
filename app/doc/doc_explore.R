@@ -35,7 +35,7 @@ div(
     in under 30 seconds at less than 1 cent per query. This system:"),
     
     tags$ul(
-      tags$li("Splits documents into 300+ character long chunks using contextual chuncking"),
+      tags$li("Splits documents into 300+ character long chunks using contextual chunking"),
       tags$li("Embeds content using OpenAI Embedding model and stores in a Chroma vector database"),
       tags$li("Employs multi-query retrieval to improve search coverage"),
     ),
@@ -50,14 +50,14 @@ div(
   h2("Computational Approaches for TF Prediction"),
   
   p("Several computational approaches have been proposed to infer sets of TF for transdifferentiation.
-    While these methods are still far away from delivering predictions with a high accurracy, 
+    While these methods are still far away from delivering predictions with a high accuracy, 
     they can provide a starting point for validation of various sets in the laboratory.
-    Here we gatherred prediction from some of the most popular tools in the field 
+    Here we gathered prediction from some of the most popular tools in the field 
     and can be now easily browsed by the user. 
     By clicking on one of the TF sets, the set will be loaded as input TFs 
     into our 'signature mining' approach and the user can perform exploration.
-    For each tool we provide a short descirption all the computational methods. 
-    For a detailed descirption have a look at the original publication:
+    For each tool we provide a short description all the computational methods. 
+    For a detailed description have a look at the original publication:
     "),
   p(tags$b( "CellNet"), "developed by Cahan et al. (2014), is a network biology-based framework 
     that evaluates the similarity between reprogrammed and target cell types while identifying 
@@ -65,12 +65,12 @@ div(
     expression data and mutual information may lead to inaccurate TF associations, and it lacks 
     the ability to optimize TF combinations by considering their interactions."),
   
-  p("The approach, developed by", tags$b("Alessio et al."), "classfies TF as core TFs based 
+  p("The approach, developed by", tags$b("Alessio et al."), "classifies TF as core TFs based 
     on type-specific expression patterns and high expression levels.
     Around 500 expression datasets, representing 106 cell and tissues types 
     primarily from the Human Body Index were used to train the model. 
     Being one of the earliest tools, the method is also the most simple one and 
-    does not incorporate the the many different data moadalieties which are available today"),
+    does not incorporate the the many different data modalities which are available today"),
   
 
   p(tags$b("Mogrify,"), "introduced by Rackham et al., integrates 
@@ -81,11 +81,11 @@ div(
     it calculates the weighted sum of the scores of local target nodes, 
     taking into account path length. Candidate TFs are identified based on their 
     ranks in the start and target cell types, with additional filtering to select 
-    TFs with common targets. An recently published extension, named Epimogrify, 
+    TFs with common targets. A recently published extension, named Epimogrify, 
     is also capable to integrate epigenomic data into the model."),
   
 
-  p("Wang et al. introduced",tags$b( "Taiji-reprogram,"), " an adaptation of Taiji, with a 
+  p("Wang et al. introduced ",tags$b( "Taiji-reprogram,"), " an adaptation of Taiji, with a 
     focus on predicting cellular reprogramming protocols. This method harnesses 
     transcriptomic and epigenomic data to generate cell-type specific gene regulatory networks (GRNs). 
     To evaluate TF influence, Taiji-reprogram employs a personalized PageRank algorithm. 

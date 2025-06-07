@@ -4,8 +4,8 @@ div(
     as they enhance the efficiency and specificity of converting somatic cells into desired cell types. 
     For instance, the transcriptional coactivator p300 interacts directly with MyoD, a master regulator of myogenesis, 
     facilitating the activation of muscle-specific genes.  Additionally, cofactors can recruit chromatin remodelers to alter chromatin accessibility, 
-    making specific genomic regions more or less accessible to TFs. Also they might factilitatily Protein-Protein 
-    interactions and influce the stability and localization of TFs."),
+    making specific genomic regions more or less accessible to TFs. They also might facilitate protein-protein 
+    interactions and influence the stability and localization of TFs."),
   p(
     "In 2016, Schmeier et al. developed the",
     a(href = "https://academic.oup.com/nar/article/45/D1/D145/2333914", "TcoF-DB v2"),
@@ -54,7 +54,7 @@ div(
     a(href = "https://thebiogrid.org/", "BioGRID"),
     ",",
     a(href = "https://www.ebi.ac.uk/intact/", "IntAct"),
-    ", and",
+    " and",
     a(href = "https://reactome.org/", "Reactome"),
     ". We included only human-human and mouse-mouse interactions between protein-coding genes. Additionally, we filtered interactions based on specific PSI-MI identifiers to ensure relevance:",
     tags$ul(
@@ -71,8 +71,8 @@ div(
     classified into 689 High-confidence (HC), 84 Class 1, 392 Class 2, and 213 Class 3 TcoFs. 
     Similarly, the updated mouse dataset includes 665 total TcoFs (from 418), with 264 High-confidence (HC), 67 Class 1, 140 Class 2, and 194 Class 3 TcoFs"
   ),
-  p("By clicking on one of the Tcofs the user can also diretcly display their expression in different tissues and 
-    see if the Tcof might be a candaidate for overexpression."),
+  p("By clicking on one of the Tcofs the user can also directly display their expression in different tissues and 
+    see if the Tcof might be a candidate for overexpression."),
   
   h3("Example Output"),
   img(src="tcof_doc.png")

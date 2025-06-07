@@ -1,12 +1,12 @@
 div(
   h2("Discovery"),
   p("The majority of the existing computational methods for the prediction of TF sets for transdifferentiation 
-    rely on pretrained models based on huge repositories sequencing data. 
-    For researches who have generated their owm data set which the want to user to
-    leverage TF prediction, these methods are very ofthen unsuitable. Either the 
+    rely on pretrained models based on huge repositories of sequencing data. 
+    For researchers who have generated their own data set which they want to use to
+    leverage TF prediction, these methods are very often unsuitable. Either the 
     wet lab lack the skill set the retrain the model, the model's source code is not published for example like Mogrify,
     the own data might not be easily incorporated due to batch effect or the 
-    scientist simply lacks the capcaity to perform such a time consuming task.
+    scientist simply lacks the capacity to perform such a time consuming task.
     "),
   p("While their primary objectives differ, techniques designed for motif discovery and differential 
     expression analysis can also serve the purpose of ranking transcription factors or transcription 

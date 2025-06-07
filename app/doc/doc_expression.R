@@ -16,14 +16,14 @@ div(
   ),
 
   p(
-    "Based on the expression data the user is able to compare the expression of TF candiadates 
+    "Based on the expression data the user is able to compare the expression of TF candidates 
     across various cell types and see how specific and variable expression levels are.
-    Ideally, good candidates should exhibit a high gene expression count in their target cell type 
+    Ideally, good candidates should exhibit a high gene expression count in their target cell type.  
     This indicates that the gene of interest is active and likely plays a significant 
     role in the desired cellular context.
     Conversely, a low gene expression count in the source cell is preferred. It suggests 
     that the TF's activity in the starting cell type is limited and overexpression of the TF
-    should make the proctocol more likely to facilitate the desired transdifferentiation process."
+    should make the protocol more likely to facilitate the desired transdifferentiation process."
   ),
   h3("Example Output"),
   img(src="expression_doc.png", style="max-width:100%; height:auto; display:block; margin:auto;")

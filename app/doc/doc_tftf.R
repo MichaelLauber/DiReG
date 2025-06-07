@@ -1,5 +1,5 @@
 div(
-  h2("TF TF Interaction"),
+  h2("TF-TF Interactions"),
   p("To construct a comprehensive and up-to-date database of TF-TF interactions, 
   we utilized the latest available data from", a(href = "https://thebiogrid.org/", "BioGRID"),
     ",",
@@ -10,8 +10,7 @@ div(
   ensuring that only well-supported, high-confidence interactions were included.
 
   The curated TF-TF interaction network provides a resource for identifying additional TFs that interact with the hypothesized 
-    input TF. By exploring these interactions, users can uncover potential regulatory relationships, 
-    cooperative binding events."
+    input TF. By exploring these interactions, users can uncover potential regulatory relationships and cooperative binding events."
   ),
   h3("Example Output"),
   img(src="tftf_doc.png")

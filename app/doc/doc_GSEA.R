@@ -7,9 +7,9 @@ div(
     rank-ordered list of genes, which allows it to incorporate the directionality 
     of gene expression changes."),
   
-  p("One notable advantage of GSEA is that it does not require the arbitrary s
-    election of a p-value cutoff. This makes GSEA particularly well-suited for 
-    analyzing differential gene expression between two conditions.To delve 
+  p("One notable advantage of GSEA is that it does not require the arbitrary 
+    selection of a p-value cutoff. This makes GSEA particularly well-suited for 
+    analyzing differential gene expression between two conditions. To delve 
     deeper into the fundamental principles of GSEA, 
     you can explore the seminal work of", 
     a(href = "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1239896/", "Subramanian et al., 2005")),
@@ -32,9 +32,9 @@ div(
   h3("Example Output"),
   img(src="gsea.png", alt="example gsea figure"),
   p("The plot shows the top 10 pathways based on their Normalized Enrichment Score (NES).
-    A positive NES indicates that the gene set is overepresented in our data,
-    and might be activated with the selection of our input TF. Vice versa a negatvie NES might supress indicates
-    that this gene set or pathway might be surpressed by our input TFS.
+    A positive NES indicates that the gene set is overrepresented in our data,
+    and might be activated with the selection of our input TF. Vice versa, a negative NES indicates
+    that this gene set or pathway might be suppressed by our input TFs.
     While the color code of the dots shows the adjusted p value of the result, the size of the dot correlates 
-    with the number of genes that intersect with the the particular gene set and the genes in our network")
+    with the number of genes that intersect with the particular gene set and the genes in our network")
 )

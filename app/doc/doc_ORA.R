@@ -32,9 +32,9 @@ pre(
                      numeric_ns = '', sources = c('GO:MF', 'GO:CC', 'GO:BP', 'KEGG','REAC'), as_short_link = FALSE)"
 ),
 p("Here, 'nodes' represent all nodes in the displayed Dorothea network which was created based on the input TFs. 
-  GO stands for Geneontology and MF for Molecular function, Cellulular compartment, 
+  GO stands for Geneontology and MF for Molecular function, Cellular compartment, 
   BP for Biological function, while REAC, KEGG are the Reactome and KEGG databases."),
-p("The final reault is a dotplot created with Plotly and a table of all results. 
+p("The final result is a dotplot created with Plotly and a table of all results. 
   The user can either inspect the results by hovering through the plot or directly 
   search a specific geneset/pathway in the table."),
 p("In addition, to further validate the result, if users log in and upload their OpenAI API key, 

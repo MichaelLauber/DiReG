@@ -5,12 +5,12 @@ div(
   p("Transcription Factor Activity (TFA) quantifies how effectively a transcription factor regulates 
   its downstream target genes within a given cellular context. Hence, TFA might 
   serve as a valuable tool for assessing a transcription factor's 
-  potential contribution to transdifferentiation. To learn more about computational approaches which facilitate TFA analysis, we suggest to 
-    have a look at the review by",a("Hecker et al.", href="https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/10.1002/pmic.202200462")),
+  potential contribution to transdifferentiation. To learn more about computational approaches which facilitate TFA analysis, we suggest having
+  a look at the review by",a("Hecker et al.", href="https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/10.1002/pmic.202200462")),
   
   p("In DiReG the TFA calculation is facilitated by the ", a("decoupleR package ", href="https://saezlab.github.io/decoupleR/articles/decoupleR.html") , 
-  "for which we utilizes GTEx expression data (TPM) as counts and incorporates the Dorothea as underlying network. 
-  For TFA calculation the 'Weighted Mean' method was chosen, a method represents a consensus score 
+  "for which we utilize GTEx expression data (TPM) as counts and incorporates Dorothea as the underlying network. 
+  For TFA calculation the 'Weighted Mean' method was chosen, a method that represents a consensus score 
   across various methodologies known to exhibit superior performance based on the developer's", a( "benchmark.", href="https://pubmed.ncbi.nlm.nih.gov/36699385/")),
   
   p("The TFA analysis should identify TFs that exhibit strong TFA in the target cell while maintaining low TFA in the donor cell, making them promising candidates for 
