@@ -87,10 +87,7 @@ tabPanel(
       ), 
       
       conditionalPanel('output.cond_exploreComp == "1"',
-                       div(
-                         startcellSelection("selectStart_infered", "Start Cell", startInputList_inf),
-                         targetcellSelection('selectTarget_infered', 'Target Cell')
-                       ),
+                       
                        checkboxGroupInput("checkGroupTools",
                                           h5("Tools"),
                                           inline = TRUE,
@@ -100,7 +97,11 @@ tabPanel(
                                                          "IRENE" = "IRENE",
                                                          "CellNet" = "CellNet"
                                           ),
-                                          selected = c("Mogrify"))
+                                          selected = c("Mogrify")),
+                       div(
+                         startcellSelection("selectStart_infered", "Start Cell", startInputList_inf),
+                         targetcellSelection('selectTarget_infered', 'Target Cell')
+                       )
       )
       
     )
