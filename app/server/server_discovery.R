@@ -422,6 +422,14 @@ observeEvent(input$btnRunAME, {
         DT::datatable(ame_results, options = list(pageLength = 10))
       })
       shinyjs::show(id="download_ame")
+      session$sendCustomMessage(type = "scrollToResults", message = list())
+      
+      # shinyjs::runjs("
+      #   document.getElementById('container-ame-bottom').scrollIntoView({ 
+      #     behavior: 'smooth', 
+      #     block: 'start' 
+      #   });
+      # ")
       
     }, error = function(e) {
       showModal(modalDialog(

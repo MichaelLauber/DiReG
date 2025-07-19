@@ -4,26 +4,26 @@ library(plotly)
 library(DT)
 library(shinyglide) 
 source("utils/utils_popover.R")             
-                                        
-fluidPage(                 
-             
+                                             
+fluidPage(                      
+                      
   tags$head(
     #for fileinput in AME  
      tags$script(src = "load-example.js"), 
            
-     tags$style(HTML("
+     tags$style(HTML(" 
       pre {
         white-space: pre-wrap; 
         word-break: break-word;
-      }
-    ")),  
+      } 
+    ")),   
      shiny::singleton(
        tags$script(src = "shared/jqueryui/jquery-ui.min.js")
      ),
      #tags$script(src = "https://code.jquery.com/jquery-3.6.0.min.js"),
      #tags$script(src = "https://code.jquery.com/ui/1.12.1/jquery-ui.js"),
      
-     tags$script(src = "autocomplete.js") 
+     tags$script(src = "autocomplete.js") , 
      ),      
             
   includeCSS("css/style.css"),
@@ -46,7 +46,7 @@ fluidPage(
   ", functions = c("idleTimer", "resetIdleTimer")),
   #shinyjs::extendShinyjs(script = "idle-timer.js", functions = c("idleTimer", "resetIdleTimer")),
                      
-  navbarPage(
+  navbarPage(   
     id = "menu",
     htmltools::includeScript("www/popover.js"),
     theme = bslib::bs_theme(),
@@ -54,25 +54,25 @@ fluidPage(
     title = "DiReG", #wrap in div() when not using bslib
     collapsible=T,
     footer = column(12, align="center", 
-                        "DiReG-App 2024 (v1.0.0)",
+                        "DiReG-App 2025 (v0.0.1)",
                         ),
     shinyjs::hidden(textInput("csrf_token", "CSRF Token")),
           
    
-          
+            
     source("ui/ui_home.R")$value,     
-    source("ui/ui_explore.R")$value,               
+    source("ui/ui_explore.R")$value,                
     source("ui/ui_mining.R")$value,          
     source("ui/ui_pred_ame.R")$value,
-    source("ui/ui_documentation.R")$value,
+    source("ui/ui_documentation.R")$value, 
     tabPanel("Login", uiOutput("login_tabset") ),
     source("ui/ui_about.R")$value,
        
-     
-           
-               
-         
+       
+            
+                 
+          
     hr()  
   )        
                             
-)  
+)   

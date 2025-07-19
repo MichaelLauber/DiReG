@@ -1,5 +1,19 @@
 tabPanel(
   "Discover New TFs",
+  
+  tags$head(
+    tags$script(HTML("
+      Shiny.addCustomMessageHandler('scrollToResults', function(message) {
+        setTimeout(function() {
+          document.getElementById('container-ame-bottom').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 300);
+      });
+    "))
+  ),
+  
   h1(class = "center", "Make a prediction with AME"),
   div(
     p("All directed prediction tools up to date are trained on a large dataset and
