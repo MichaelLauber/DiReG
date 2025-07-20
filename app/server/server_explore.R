@@ -1,6 +1,14 @@
 cond_exploreExp <- reactiveVal(1)
 cond_exploreComp <- reactiveVal(0)
 
+show_explore_explanation <- reactiveVal(TRUE)
+
+output$show_explore_explanation <- reactive({
+  show_explore_explanation()
+})
+
+outputOptions(output, 'show_explore_explanation', suspendWhenHidden = FALSE)
+
 output$cond_exploreExp = renderText({cond_exploreExp()})
 output$cond_exploreComp = renderText({cond_exploreComp()})
 
@@ -104,7 +112,8 @@ observeEvent(input$explore_prompt_btn, {
     showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
   }
   
- 
+  show_explore_explanation(FALSE)
+  
   # Get the user question from the text area input
   user_question <- input$user_prompt_explore
 
@@ -200,6 +209,9 @@ query_rag_pipeline <- function(question, api_key, api_url = api_rag_url) {
 
 # Custom RAG query button handler
 observeEvent(input$explore_prompt_rag_btn, {
+  
+  show_explore_explanation(FALSE)
+  
   # Get the user question from the text area input
   user_question <- input$user_prompt_explore_rag
   
