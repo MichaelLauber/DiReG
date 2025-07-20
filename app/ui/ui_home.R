@@ -37,6 +37,9 @@ tabPanel("Home",
                          
                          # Explore existing knowledge
                          div(style = "flex: 1; min-width: 200px; max-width: 250px; padding: 20px; background-color: #e8f5e8; border-radius: 10px; border: 1px solid #27ae60;",
+                             onclick = "document.getElementById('menu').querySelector('a[data-value=\"Explore\"]').click();",
+                             onmouseover = "this.style.transform='translateY(-5px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.1)';",
+                             onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none';",
                              div(style = "display: flex; align-items: center; margin-bottom: 10px;",
                                  icon("search", style = "color: #27ae60; margin-right: 10px; font-size: 20px;"),
                                  h5("Explore", style = "color: #27ae60; margin: 0;")
@@ -49,6 +52,9 @@ tabPanel("Home",
                          
                          # Analyze your factors
                          div(style = "flex: 1; min-width: 200px; max-width: 250px; padding: 20px; background-color: #fff2e8; border-radius: 10px; border: 1px solid #e67e22;",
+                             onclick = "document.getElementById('menu').querySelector('a[data-value=\"Analyze TF Sets\"]').click();",
+                             onmouseover = "this.style.transform='translateY(-5px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.1)';",
+                             onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none';",
                              div(style = "display: flex; align-items: center; margin-bottom: 10px;",
                                  icon("chart-line", style = "color: #e67e22; margin-right: 10px; font-size: 20px;"),
                                  h5("Analyze TF Sets", style = "color: #e67e22; margin: 0;")
@@ -59,6 +65,9 @@ tabPanel("Home",
                          
                          # Discover new factors
                          div(style = "flex: 1; min-width: 200px; max-width: 250px; padding: 20px; background-color: #e8f4fd; border-radius: 10px; border: 1px solid #3498db;",
+                             onclick = "document.getElementById('menu').querySelector('a[data-value=\"Discover New TFs\"]').click();",
+                             onmouseover = "this.style.transform='translateY(-5px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.1)';",
+                             onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none';",
                              div(style = "display: flex; align-items: center; margin-bottom: 10px;",
                                  icon("microscope", style = "color: #3498db; margin-right: 10px; font-size: 20px;"),
                                  h5("Discover New TFs", style = "color: #3498db; margin: 0;")
