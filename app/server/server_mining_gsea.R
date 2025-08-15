@@ -59,7 +59,7 @@ observeEvent(input$btnGSEA, {
   
   
   organism <- ifelse(input$radioOrgDorothea == "human", "human", "murine")
-  collection <- loadGeneSets(organism)
+  collection <- loadGeneSets(organism)#[1:2]
   
   gene_list <- getRanks(inputTFs(), data()) # change input TFs
   
@@ -73,7 +73,7 @@ observeEvent(input$btnGSEA, {
     return()
   }
     
-    fgsea_results <- lapply(collection[1:2], function(pathways) {
+    fgsea_results <- lapply(collection, function(pathways) {
       fgsea::fgsea(pathways = pathways, stats = gene_list) %>%
         dplyr::filter(padj <= 0.05) %>%
         dplyr::arrange(desc(abs(NES)))
@@ -138,13 +138,13 @@ observeEvent(input$btnGSEA, {
         layout(
           title = "Top 10 Pathways",
           xaxis = list(title = "Normalized Enrichment Score"),
-          yaxis = list(title = "Pathway"),
+          yaxis = list(title = ""),
           colorbar = list(title = "Adjusted p-value")
         )
     })
     
     
-    names(plots) <- names_migsig_sets[1:2] #CHANGE !!!!!!!
+    names(plots) <- names_migsig_sets #[1:2] #CHANGE !!!!!!!
     
     
     screens_plot <- lapply(seq_along(plots), function(i) {
