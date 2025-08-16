@@ -147,7 +147,8 @@ tabPanel(
       ),
       
       div(
-        verbatimTextOutput("api_response_output")
+        style = "background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);",
+        uiOutput("api_response_output")
       )
     ),
     

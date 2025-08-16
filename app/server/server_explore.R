@@ -152,7 +152,7 @@ observeEvent(input$explore_prompt_btn, {
     #   max_answer_attempts = 3,
     #   api_key = "s"
     # )
-    
+
 
     
     # Send POST request to the API
@@ -161,7 +161,18 @@ observeEvent(input$explore_prompt_btn, {
     
     # Parse the response and update the output text area
     if (response$status_code == 200) {
-      output$api_response_output <- renderText({ result$formatted_answer })
+      #output$api_response_output <- renderText({ result$formatted_answer })
+      output$api_response_output <- renderUI({
+        div(
+          class = "api-response",
+          HTML(markdown::markdownToHTML(
+            text = result$formatted_answer,
+            fragment.only = TRUE,
+            options = c("use_xhtml", "smartypants", "tables", "strikethrough")
+          ))
+        )
+      })
+      
     } else {
       error_message <- paste("An error occurred. Status code:", response$status_code)
       print(error_message)
@@ -185,6 +196,8 @@ observeEvent(input$explore_example_rag_btn, {
 api_rag_url = "http://rag_service:8008/process_query"
 #change to localhost if you do not use docker compose
 #api_rag_url = "http://localhost:8008/process_query"
+
+
 
 query_rag_pipeline <- function(question, api_key, api_url = api_rag_url) {
   # Create and send the request
@@ -214,6 +227,7 @@ observeEvent(input$explore_prompt_rag_btn, {
   
   # Get the user question from the text area input
   user_question <- input$user_prompt_explore_rag
+  user_question <- paste(user_question, "Use markdown formatting in your response.")
   
   # Only proceed if user question is not empty
   if (nzchar(user_question)) {
@@ -222,7 +236,16 @@ observeEvent(input$explore_prompt_rag_btn, {
     # Try to execute the RAG query
     tryCatch({
       result <- query_rag_pipeline(user_question, api_key = api_settings()$api_key)
-      output$api_response_output <- renderText({ result })
+      output$api_response_output <- renderUI({ 
+        div(
+          class = "api-response",
+          HTML(markdown::markdownToHTML(
+            text = result,
+            fragment.only = TRUE,
+            options = c("use_xhtml", "smartypants", "tables", "strikethrough")
+          ))
+        )
+         })
     }, error = function(e) {
       error_message <- paste("An error occurred while processing the RAG query:", e$message)
       print(error_message)
