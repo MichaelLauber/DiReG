@@ -193,12 +193,14 @@
       showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
     }
     
-    user_prompt <- paste0("Do the overrepresentated genesets show specifity for:", 
+    user_prompt <- paste0("I am scientist interested in direct reprogramming. 
+                        I have a gene set that gets activated when overexpressing a set of TFs and have performed GSEA on it.
+                        Tell me do the enriched genesets show specifity for: ", 
                           input$user_prompt_ora, 
-                          "-These are the enriched genesets: ", 
+                          ". These are the enriched genesets: ", 
                           paste(cache$enrichData$result$term_name, 
                                 collapse = ", "),
-                          "Return Answer with Markdown Formatting"
+                          ". Return Answer with Markdown Formatting. It will be displayed within an web-application."
                           )
     
     shinyjs::runjs("$('#llm_response_ora').text('Generating response, please wait...');")

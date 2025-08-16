@@ -70,7 +70,7 @@ tabPanel("Analyze TF Sets",
                                        textInput("user_prompt_gsea", label = NULL, placeholder = "liver/beta/.. cells", width = "100%"),
                                        actionButton("submit_prompt_gsea_btn", "Ask")
                                      ),
-                                     verbatimTextOutput("llm_response_gsea")
+                                     uiOutput("llm_response_gsea")
                                    ),
                                    h3('GSEA Analysis', align="center"),
                                    div(class="vw70",

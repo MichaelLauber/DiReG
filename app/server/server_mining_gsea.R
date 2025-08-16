@@ -215,10 +215,14 @@ observeEvent(input$submit_prompt_gsea_btn, {
     showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
   }
   
-  user_prompt <- paste0("Do the enriched genesets show specifity for:", 
+  user_prompt <- paste0("I am scientist interested in direct reprogramming. 
+                        I have a gene set that gets activated when overexpressing a set of TFs and have performed GSEA on it.
+                        Tell me do the enriched genesets show specifity for: ", 
                         input$user_prompt_gsea, 
-                        "-These are the enriched genesets: ", 
-                        paste(cache_gsea$comb_gsea_res$pathway, collapse = ", "))
+                        ". These are the enriched genesets: ", 
+                        paste(cache_gsea$comb_gsea_res$pathway, collapse = ", "),
+                        ". Provide the output in HTML Formatting. It will be displayed within an web-application."
+                        )
   output$llm_response_gsea <- renderText("Generating response, please wait...")
   shinyjs::runjs("$('#llm_response_gsea').text('Generating response, please wait...');")
   
@@ -229,7 +233,7 @@ observeEvent(input$submit_prompt_gsea_btn, {
     messages = list(
       list(role = "user", content = user_prompt)
     ),
-    max_tokens = 1000
+    max_completion_tokens = 10000
   ), auto_unbox = TRUE)
   
   response <- httr::POST(
@@ -258,7 +262,7 @@ observeEvent(input$submit_prompt_gsea_btn, {
   }
   
   #####
-  output$llm_response_gsea <- renderText({
-    response_to_display
+  output$llm_response_gsea <- renderUI({
+    HTML(markdown::markdownToHTML(text = response_to_display, fragment.only = TRUE))
   })
 })
