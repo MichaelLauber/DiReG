@@ -50,7 +50,7 @@ output$login_ui <- renderUI({
           p("Login to access your personal OpenAI API key management system. Once logged in, you can:"),
           tags$ul(
             tags$li("Securely store your OpenAI API key in our encrypted database"),
-            tags$li("Select your preferred AI model (GPT-4o, GPT-4o-mini, o1, o3-mini)"),
+            tags$li("Select your preferred AI model (GPT-5, GPT-5-mini, GPT-5-nano)"),
             tags$li("Use your API key for all LLM requests within the application"),
             tags$li("Update or delete your stored API key at any time")
           ),
@@ -300,13 +300,12 @@ output$manage_key_ui <- renderUI({
         h5("Model Selection", style = "color: #004085; margin-top: 0;"),
         p("Choose your preferred OpenAI model for all LLM requests:"),
         tags$ul(
-          tags$li(strong("GPT-4o:"), "Most capable model, best for complex tasks"),
-          tags$li(strong("GPT-4o-mini:"), "Faster and more cost-effective, good for most tasks"),
-          tags$li(strong("o1:"), "Advanced reasoning model for complex problem-solving"),
-          tags$li(strong("o3-mini:"), "Latest reasoning model, optimized for efficiency")
+          tags$li(strong("GPT-5:"), "Most capable model, best for complex tasks"),
+          tags$li(strong("GPT-5-mini:"), "Faster and more cost-effective, good for most tasks"),
+          tags$li(strong("GPT-5-nano:"), "Fastest and most cost-effective, ideal for initial analysis"),
         ),
         selectInput("model_dropdown", "Select Favorite OpenAI Model",
-                    choices = c("gpt-4o-mini", "gpt-4o", "o1", "o3-mini"),
+                    choices = c("gpt-5", "gpt-5-mini", "gpt-5-nano"),
                     selected = favorite_model()),
         tags$small("This model will be used for all AI requests in the application.", 
                    style = "color: #6c757d;")
