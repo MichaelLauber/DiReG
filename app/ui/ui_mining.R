@@ -48,7 +48,7 @@ tabPanel("Analyze TF Sets",
                                        textInput("user_prompt_ora", label = NULL, placeholder = "liver/beta/.. cells", width = "100%"),
                                        actionButton("submit_prompt_ora_btn", "Ask")
                                      ),
-                                       verbatimTextOutput("llm_response_ora")
+                                     uiOutput("llm_response_ora")
                                    ),
                                    h3('Overrepresentation Analysis based on Dorothea Network', align="center"),
                                    div(

@@ -193,21 +193,30 @@
       showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
     }
     
-    user_prompt <- paste0("Do the overrepresentated genesets show specifity for:", input$user_prompt_ora, "-These are the enriched genesets: ", paste(cache$enrichData$result$term_name, collapse = ", "))
-    output$llm_response_ora <- renderText("Generating response, please wait...")
+    user_prompt <- paste0("Do the overrepresentated genesets show specifity for:", 
+                          input$user_prompt_ora, 
+                          "-These are the enriched genesets: ", 
+                          paste(cache$enrichData$result$term_name, 
+                                collapse = ", "),
+                          "Return Answer with Markdown Formatting"
+                          )
+    
     shinyjs::runjs("$('#llm_response_ora').text('Generating response, please wait...');")
     
     
     ####Using openaiAPI
     
+    url <- "https://api.openai.com/v1/chat/completions"
+    
     data <- jsonlite::toJSON(list(
-      model = api_settings()$preferred_model,  # Specify the model you want to use (e.g., "gpt-3.5-turbo" or "davinci")
+      model = api_settings()$preferred_model,
       messages = list(
         list(role = "user", content = user_prompt)
       ),
-      max_tokens = 1000
+      max_completion_tokens = 10000
     ), auto_unbox = TRUE)
-    
+
+
     response <- httr::POST(
       url,
       httr::add_headers(
@@ -216,9 +225,7 @@
       ),
       body = data,
       encode = "json"
-    )  
-    
-    print(response)
+    )
     
     # Check the response status
     if (httr::status_code(response) == 200) {
@@ -226,21 +233,23 @@
       content <- httr::content(response, as = "text", encoding = "UTF-8")
       parsed_content <- jsonlite::fromJSON(content)
       
-      print("Total tokens:")
-      print(parsed_content$usage$total_tokens)
-      
       response_to_display <- parsed_content$choices$message$content
-      # Extract and print the response text
-      #cat("Response from OpenAI:\n")
-      #cat(parsed_content$choices$message$content, "\n")
+      
+      output$llm_response_ora <- renderUI({
+        div(
+          HTML(markdown::markdownToHTML(text = response_to_display, fragment.only = TRUE))
+        )
+      })
     } else {
       # Print an error message if the request fails
       cat("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
       response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
+      
+      output$llm_response_ora <- renderUI({
+        HTML(markdown::markdownToHTML(text = response_to_display, fragment.only = TRUE))
+      })
     }
     
     #####
-    output$llm_response_ora <- renderText({
-      response_to_display
-    })
+    
   })  
