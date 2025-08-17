@@ -14,7 +14,7 @@ function(input, output, session) {
     } else {
       list(
         api_key = readRDS("login/fllback_api_key.rds"),
-        preferred_model = "gpt-4o-mini"
+        preferred_model = "gpt-5-nano"
       )
     }
   })
@@ -42,5 +42,5 @@ function(input, output, session) {
   
   
 } 
-  
+   
 
