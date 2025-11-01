@@ -4,9 +4,9 @@ library(plotly)
 library(DT)
 library(shinyglide) 
 source("utils/utils_popover.R")             
-                                             
+                                               
 fluidPage(                      
-                      
+                       
   tags$head(
     #for fileinput in AME  
      tags$script(src = "load-example.js"), 
@@ -45,7 +45,7 @@ fluidPage(
     };
   ", functions = c("idleTimer", "resetIdleTimer")),
   #shinyjs::extendShinyjs(script = "idle-timer.js", functions = c("idleTimer", "resetIdleTimer")),
-                     
+                              
   navbarPage(   
     id = "menu",
     htmltools::includeScript("www/popover.js"),
@@ -58,7 +58,7 @@ fluidPage(
                         ),
     shinyjs::hidden(textInput("csrf_token", "CSRF Token")),
           
-   
+       
             
     source("ui/ui_home.R")$value,     
     source("ui/ui_explore.R")$value,                
@@ -70,7 +70,7 @@ fluidPage(
        
        
             
-                 
+                   
           
     hr()  
   )        

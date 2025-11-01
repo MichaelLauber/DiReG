@@ -112,6 +112,8 @@ observeEvent(input$explore_prompt_btn, {
     showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
   }
   
+  showModal(modalDialog("PaperQA runs currently with GPT4o as GPT5 models are currently not supported yet. We will update this as soon as PaperQA adds the GPT5 support.", easyClose = TRUE))
+  
   show_explore_explanation(FALSE)
   
   # Get the user question from the text area input
@@ -132,11 +134,15 @@ observeEvent(input$explore_prompt_btn, {
       rate_limit = "30000 per 1 minute",
       folder = "/app/papers",  # adjust if you mounted the folder or copied it in Docker
       mode = input$explore_mode,
-      llm = api_settings()$preferred_model,
-      summary_llm = api_settings()$preferred_model,
-      agent_llm = api_settings()$preferred_model,
       max_answer_attempts = 3,
-      api_key = api_settings()$api_key
+      # llm = api_settings()$preferred_model,
+      # summary_llm = api_settings()$preferred_model,
+      # agent_llm = api_settings()$preferred_model,
+      api_key = api_settings()$api_key,
+      llm = "gpt-4o",
+      summary_llm = "gpt-4o",
+      agent_llm = "gpt-4o",
+      api_key = "gpt-4o"
     )
     
     #for debugging only
@@ -186,7 +192,6 @@ observeEvent(input$explore_prompt_btn, {
 
 
 observeEvent(input$explore_example_rag_btn, {
-  print("RAG Example Pressed")
   updateTextAreaInput(session, "user_prompt_explore_rag", value = example_question)
 })
 
@@ -224,6 +229,11 @@ query_rag_pipeline <- function(question, api_key, api_url = api_rag_url) {
 observeEvent(input$explore_prompt_rag_btn, {
   
   show_explore_explanation(FALSE)
+  
+  if(!key_uploaded()){
+    showModal(modalDialog("Please Upload an API Key [For test purposes an API Key is provided by us]", easyClose = TRUE))
+  }
+  
   
   # Get the user question from the text area input
   user_question <- input$user_prompt_explore_rag
