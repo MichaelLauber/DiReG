@@ -7,7 +7,7 @@ plot_storage <- reactiveValues(
 )
 
 folderInfo_exp <- reactive({
-  if (input$radioOrgDorothea == "human") {
+  if (input$radioOrgNetwork == "human") {
     folder <- "hs_tfs_rds_files"
     file_ending <- "_human_TFs.rds"
   } else {
@@ -274,7 +274,7 @@ observeEvent(input$okExpBtn, {
   )
   
   # Apply filtering only if the organism is human.
-  if (input$radioOrgDorothea == "human") {
+  if (input$radioOrgNetwork == "human") {
     annotation_counts_start <- table(expression_data_start$free_annotation)
     valid_annotations_start <- names(annotation_counts_start[annotation_counts_start >= 40])
     expression_data_start <- expression_data_start[

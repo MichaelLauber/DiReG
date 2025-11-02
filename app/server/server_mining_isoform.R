@@ -11,7 +11,7 @@ observeEvent(input$btnIsoforms, {
   #   return()
   # }
   
-  if(input$radioOrgDorothea == "mouse"){
+  if(input$radioOrgNetwork == "mouse"){
     shinyalert::shinyalert("Not Supported for Mouse data",
                            "We are sorry, but the Differention Potential calculations are based on human data only",
                            type = "error")

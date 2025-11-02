@@ -9,7 +9,7 @@ selectedGeneTfcof <- reactiveVal(NULL)
 
 # Single-cell folder logic (like your final code)
 folderInfo_Tcof <- reactive({
-  if (input$radioOrgDorothea == "human") {
+  if (input$radioOrgNetwork == "human") {
     folder <- "hs_tcofs_rds_files"
     file_ending <- "_human_Tcofs.rds"
   } else {
@@ -75,7 +75,7 @@ observeEvent(input$btnTfcof, {
     return()}
   
   organism <- reactive({
-    switch(input$radioOrgDorothea,
+    switch(input$radioOrgNetwork,
            "human" = "hsapiens",
            "mouse" = "mmusculus")
   })
@@ -306,7 +306,7 @@ observeEvent(input$okTissueTcof, {
   
   
   # If human, filter by annotation
-  if (input$radioOrgDorothea == "human") {
+  if (input$radioOrgNetwork == "human") {
     annotation_counts_start <- table(expr_data_start$free_annotation)
     valid_annotations_start <- names(annotation_counts_start[annotation_counts_start >= 40])
     expr_data_start <- expr_data_start[expr_data_start$free_annotation %in% valid_annotations_start, ]

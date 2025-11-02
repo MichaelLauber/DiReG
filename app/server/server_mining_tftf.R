@@ -12,7 +12,7 @@ selectedGeneTFTF <- reactiveVal(NULL)
 # Create content for the carousel
 
 folderInfoTFTF <- reactive({
-  if (input$radioOrgDorothea == "human") {
+  if (input$radioOrgNetwork == "human") {
     folder <- "hs_tfs_rds_files"
     file_ending <- "_human_TFs.rds"
   } else {
@@ -78,7 +78,7 @@ observeEvent(input$btnTFTF, ({
     return()}
   
   organism <- reactive({
-    switch(input$radioOrgDorothea,
+    switch(input$radioOrgNetwork,
            "human" = "hsapiens",
            "mouse" = "mmusculus")
   })
@@ -340,7 +340,7 @@ observeEvent(input$okTissueTFTF, {
  
   
   # If organism is human, filter expression data by free_annotation counts (>=40)
-  if (input$radioOrgDorothea == "human") {
+  if (input$radioOrgNetwork == "human") {
     annotation_counts_start <- table(expr_data_start$free_annotation)
     valid_annotations_start <- names(annotation_counts_start[annotation_counts_start >= 40])
     expr_data_start <- expr_data_start[expr_data_start$free_annotation %in% valid_annotations_start, ]

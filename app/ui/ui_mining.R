@@ -16,7 +16,7 @@ tabPanel("Analyze TF Sets",
                )
              ),
              
-             actionButton("btnCreateDoro",
+             actionButton("btnCreateNetwork",
                           label = "RUN",
                           class= "bttn-minimal"
              ),
@@ -34,7 +34,7 @@ tabPanel("Analyze TF Sets",
              div( id="container-mining-main",
                   
                    
-                  source("ui/ui_doro_vis.R")$value,
+                  source("ui/ui_network_vis.R")$value,
                   
                   # put conditional panels in a separate script !!!
                   conditionalPanel('output.cond_ora == "1"',
@@ -50,7 +50,7 @@ tabPanel("Analyze TF Sets",
                                      ),
                                      uiOutput("llm_response_ora")
                                    ),
-                                   h3('Overrepresentation Analysis based on Dorothea Network', align="center"),
+                                   h3('Overrepresentation Analysis based on CollecTRI Network', align="center"),
                                    div(
                                      plotlyOutput("enrichPlot"),
                                      uiOutput("sourceSelectionUI"),

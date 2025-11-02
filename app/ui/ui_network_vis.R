@@ -12,6 +12,12 @@ fluidRow(
         condition = 'window.cond_visnet == "1"',
         div(h2("Explore Transcription Factors"),
             hr(),
+            hr(),
+            p(HTML("Enter your set of suggested transcription factors (TFs) for transdifferentiation in the input box and click <strong>Run</strong>. 
+            The tool will generate a gene regulatory network based on <a href='https://github.com/saezlab/CollecTRI' target='_blank'>CollecTRI</a> data. 
+            The network visualizes the <strong>mode of regulation</strong> (activation/inhibition) and can be <strong>extended by downstream targets</strong> 
+            of your initial TFs to explore broader regulatory cascades. You can also filter interactions by <strong>confidence level</strong>.")),
+            p(HTML("Once your network is generated, you can perform the following downstream analyses:")),
             p(HTML("<strong>OR Analysis:</strong> Performs Overrepresentation Analysis based on the input TFs and their targets.")),
             p(HTML("<strong>GSEA:</strong> Performs Geneset Enrichment Analysis based on the input TFs and their targets. 
                     Analysis is performed on gene sets from (<a href='https://www.gsea-msigdb.org/gsea/msigdb' target='_blank'>MigSigDB.</a>); TFs, interaction with higher confidence, 
@@ -38,7 +44,7 @@ fluidRow(
     
       conditionalPanel(
         condition = 'window.cond_visnet == "0"',  
-      visNetworkOutput("visNet_dorothea")
+      visNetworkOutput("visNet_network")
       ),
     
     hr(),
@@ -50,7 +56,8 @@ fluidRow(
       column(3,
              checkboxGroupInput(
                "checkConfidence",
-               titleWithPopover("Confidence Level", "Explanation", "A: Curated/high conficende; B: Likely confidence; C: Medium confidence; D: Low confidence"),
+               titleWithPopover("Confidence Level", "Explanation", 
+                                "Based on number of supporting resources and references. A: Highest (3+ & 3+); B: High (3+ either); C: Medium (2+ either); D: Low (1/1)"),               
                choices = list(
                  "A" = "A",
                  "B" = "B",
@@ -63,7 +70,7 @@ fluidRow(
       ),
       column(3,
              radioButtons(
-               "radioOrgDorothea",
+               "radioOrgNetwork",
                "Organism",
                choices = list("human" = "human", "mouse" = "mouse"),
                selected = "human",
@@ -72,7 +79,7 @@ fluidRow(
       ),
       column(3,
              sliderInput(
-               "sliderDegDorothea",
+               "sliderDegNetwork",
                titleWithPopover("Radius", "Path length from input TF", "If you chose a radius > 1 indirect targets of the input TFs will also be calculated"),
                min = 1,
                max = 3,
@@ -86,9 +93,9 @@ fluidRow(
     ),
     ),
     conditionalPanel(
-      condition = "output.btnCreateDoroPressed",  # This checks the value of buttonPressed() in the output list
+      condition = "output.btnCreateNetworkPressed",  # This checks the value of buttonPressed() in the output list
       column(2, offset = 10,
-             downloadButton('btnDownloadDorothea', 'Download')
+             downloadButton('btnDownloadNetwork', 'Download')
       )
     )
 

@@ -1,30 +1,33 @@
 library(decoupleR)
 
-dorothea_hs <- readRDS("data/dorothea_hs.rds")
-dorothea_mm <- readRDS("data/dorothea_mm.rds")
+
+collecTRI_hs <- read.csv(file.path("data", "ct_hs.tsv"), sep = "\t")
+collecTRI_mm <- read.csv(file.path("data", "ct_mm.tsv"), sep = "\t")
+
+
 
 networkCreated <- FALSE
-btnCreateDoroPressed <- reactiveVal(FALSE)
+btnCreateNetworkPressed <- reactiveVal(FALSE)
 dropdownSelected <- reactiveVal(FALSE) # checks if the network should be ristricted to a selected TF
 
 previousInput <- reactiveVal(list(raw = NULL, org = NULL))
 previousTFs <- reactiveVal(NULL)
 
-dorothea <- reactive({
-  switch(input$radioOrgDorothea,
-         "human" = dorothea_hs,
-         "mouse" = dorothea_mm)
+collecTRI <- reactive({
+  switch(input$radioOrgNetwork,
+         "human" = collecTRI_hs,
+         "mouse" = collecTRI_mm)
 }) 
 
 organism <- reactive({
-  switch(input$radioOrgDorothea,
+  switch(input$radioOrgNetwork,
          "human" = "hsapiens",
          "mouse" = "mmusculus")
 })
 
 
 data <- reactive({
-  dorothea() %>%
+  collecTRI() %>%
     filter(confidence %in% input$checkConfidence) %>%
     dplyr::rename("from" = "source", "to" = "target") %>%
     dplyr::select(from, to, mor, confidence)
@@ -45,7 +48,7 @@ observeEvent(input$btnMiningExample, {
 
 tfList <- reactiveVal(NULL)
 
-observeEvent(list(input$btnCreateDoro, organism()), {
+observeEvent(list(input$btnCreateNetwork, organism()), {
 
 
   if (is.null(input$inputTextTFs) || input$inputTextTFs == "") {
@@ -55,7 +58,7 @@ observeEvent(list(input$btnCreateDoro, organism()), {
 
   message("creating the network")
   networkCreated <<- TRUE
-  btnCreateDoroPressed(TRUE)
+  btnCreateNetworkPressed(TRUE)
 
   raw_input <- input$inputTextTFs
   current_org <- organism()  # get current organism value
@@ -117,7 +120,7 @@ inputTFs <- reactive({
 
 
 allTFs <- reactive({
-  unique(dorothea()$source)
+  unique(collecTRI()$source)
 })
 
 observe({
@@ -127,7 +130,7 @@ observe({
 })
 
 observe({
-  visNetworkProxy("visNet_dorothea") %>%
+  visNetworkProxy("visNet_network") %>%
     visSetData(nodes=nodes(), edges=edges())
 })
 
@@ -152,14 +155,14 @@ edges <- reactive({
     })
   }
   
-  if(input$sliderDegDorothea %in% c(2,3)){
+  if(input$sliderDegNetwork %in% c(2,3)){
     
     secDegTfs <- edges1$to[edges1$to %in% allTFs()]
     select_edges2 <- data()$from %in% secDegTfs
     select_edges_comb <- (select_edges | select_edges2)
     edges <- data()[select_edges_comb,]
     
-    if(input$sliderDegDorothea == 3){
+    if(input$sliderDegNetwork == 3){
       
       thirdDegTfs <- edges$to[edges$to %in% allTFs()]
       select_edges3 <- data()$from %in% thirdDegTfs
@@ -219,7 +222,7 @@ edgeLabel <- reactive({
                                color = colors)
   
   # Slider " Radius" which extends the network to further downstream targets
-  if(input$sliderDegDorothea %in% c(2,3)){
+  if(input$sliderDegNetwork %in% c(2,3)){
     edgeLabelDeg <- data.frame(
       label = c("1st Degree", "2nd Degree"),
       dashes = c(FALSE, TRUE),
@@ -232,7 +235,7 @@ edgeLabel <- reactive({
   rbind(edgeLabelDeg,edgeLabelColor)
 })
 
-output$visNet_dorothea <- renderVisNetwork({
+output$visNet_network <- renderVisNetwork({
 
   #req(networkCreated, msg = "Please click the RUN button to create network")
   req(!is.null(nodes()) && nrow(nodes()) > 0, msg = "Network data is being processed...")
@@ -240,10 +243,10 @@ output$visNet_dorothea <- renderVisNetwork({
   # for debugging TfsSelection can be replace by inputTF()
   TfsSelection <-  inputTFs()[inputTFs() %in% nodes()$id]
 
-  TFsNotInDoro <- inputTFs()[!(inputTFs() %in% nodes()$id)]
+  TFsNotInNetwork <- inputTFs()[!(inputTFs() %in% nodes()$id)]
 
 
-  #warning if the selected TF is not part of the dorothea network
+  #warning if the selected TF is not part of the network
   if(!dropdownSelected()){
 
     if(length(TfsSelection) == 0  ){
@@ -252,9 +255,9 @@ output$visNet_dorothea <- renderVisNetwork({
       return()
     }
 
-    if(length(TFsNotInDoro) != 0){
-      shinyalert::shinyalert(glue::glue(' Transcription factors "{TFsNotInDoro}" is not contained in the Dorothea network'),
-                             "Please check spelling and use gene symbols",
+    if(length(TFsNotInNetwork) != 0){
+      shinyalert::shinyalert(glue::glue('Transcription factors "{TFsNotInNetwork}" is not contained in the CollecTRI database'),
+                             "Please check spelling and use gene symbols or occurence at lower confidence levels",
                              type = "warning")
     }
   }
@@ -266,7 +269,7 @@ output$visNet_dorothea <- renderVisNetwork({
     edges(),
     width = "100%",
     main = list(text = "Predicted TFs with their Target Genes", style = "font-family:Arial; font-size:25px; text-align:center; font-weight:bold; color:black;"),
-    submain = list(text = "Interactions based on DoRothEA",
+    submain = list(text = "Interactions based on collecTRI",
                    style = "font-family:Arial; color:black; font-size:19px; text-align:center; margin-top:5px;"),
     footer = list(text = "For more information click on node or edge", style = "font-family:Arial;font-size:12px;text-align:center; color: black;")
   )  %>%
@@ -299,8 +302,8 @@ output$visNet_dorothea <- renderVisNetwork({
 })
 
 
-# download dorothea network as csv file
-output$btnDownloadDorothea <- downloadHandler(
+# download network as csv file
+output$btnDownloadNetwork <- downloadHandler(
   
   filename = function() {
     paste("data-", Sys.Date(), ".csv", sep="")

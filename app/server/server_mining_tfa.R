@@ -20,7 +20,7 @@ getCellTypesForTissue <- function(tissue, organism) {
 
 data_list <- reactive({
   
-  if (input$radioOrgDorothea == "human") {
+  if (input$radioOrgNetwork == "human") {
     expression <- readRDS(file.path("data","gtexTPM.rds"))
     tissues <- colnames(expression)[-c(1:2)]
     
@@ -105,7 +105,7 @@ prevState <- reactiveValues(
 
 dataModal <- function(failed = FALSE) {
   # Determine if we're working with human or mouse data
-  is_human <- input$radioOrgDorothea == "human"
+  is_human <- input$radioOrgNetwork == "human"
   
   # For mouse, we should automatically select single cell since bulk isn't available
   if (!is_human) {
@@ -187,8 +187,8 @@ output$hasSingleCell <- reactive({
 outputOptions(output, "hasSingleCell", suspendWhenHidden = FALSE)
 
 # Set data type based on organism when radio button changes
-observeEvent(input$radioOrgDorothea, {
-  if(input$radioOrgDorothea == "mouse") {
+observeEvent(input$radioOrgNetwork, {
+  if(input$radioOrgNetwork == "mouse") {
     # Mouse only has single cell data
     dataTypeSelection("single_cell")
   } else {

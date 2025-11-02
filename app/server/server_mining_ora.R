@@ -51,7 +51,7 @@
     on.exit(removeNotification(notification), add = TRUE)
     
     # Determine organism
-    organism <- ifelse(input$radioOrgDorothea == "human", "hsapiens", "mmusculus")
+    organism <- ifelse(input$radioOrgNetwork == "human", "hsapiens", "mmusculus")
     
     # Perform the OR analysis using gprofiler2
     cache$enrichData <- gprofiler2::gost(

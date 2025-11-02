@@ -58,7 +58,7 @@ observeEvent(input$btnGSEA, {
   names_migsig_sets <- c("Hallmark Gene Sets", "Canonical Pathways Gene Sets", "Gene Ontology Gene Sets", "Cell Type Signature Gene Sets")
   
   
-  organism <- ifelse(input$radioOrgDorothea == "human", "human", "murine")
+  organism <- ifelse(input$radioOrgNetwork == "human", "human", "murine")
   collection <- loadGeneSets(organism)#[1:2]
   
   gene_list <- getRanks(inputTFs(), data()) # change input TFs
