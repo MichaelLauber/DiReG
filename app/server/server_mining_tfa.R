@@ -426,8 +426,11 @@ observeEvent(input$ok, {
     condition_y_formatted <- formatTissueNameForDisplay(unique(combined$condition.y))
     
     combined$greaterPval <- 1 / pmax(combined$p_value.x, combined$p_value.y)
-    combined$symbol <- ifelse(combined$source %in% inputTFs(), "diamond", "circle")
-    combined$lineColor <- ifelse(combined$source %in% inputTFs(), "black", "white")
+    combined$isInputTF <- combined$source %in% inputTFs()
+    combined$symbol <- ifelse(combined$isInputTF, "diamond", "circle")
+    combined$lineColor <- ifelse(combined$isInputTF, "black", "white")
+    
+    combined <- combined %>% dplyr::arrange(isInputTF)
     
     max_val <- max(c(combined$score.x, combined$score.y))
     min_val <- min(c(combined$score.x, combined$score.y))
