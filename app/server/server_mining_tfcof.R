@@ -7,6 +7,8 @@ tfcof_interaction_mm <- readRDS("data/gene_tf_interactions_mouse_annotated_small
 
 selectedGeneTfcof <- reactiveVal(NULL)
 
+tfcof_data_export <- reactiveVal(NULL)
+
 # Single-cell folder logic (like your final code)
 folderInfo_Tcof <- reactive({
   if (input$radioOrgNetwork == "human") {
@@ -148,6 +150,7 @@ observeEvent(input$btnTfcof, {
   
   combined_df <- bind_rows(result_list)
   
+  tfcof_data_export(combined_df)
   
   # If there's nothing to show, end here
   if(nrow(combined_df) == 0) {
@@ -408,4 +411,105 @@ observeEvent(input$okTissueTcof, {
     
     output$plotlySingleTFCof <- plotly::renderPlotly({ p_single })
   }
-})      
+})
+
+observeEvent(input$submit_prompt_tfcof_btn, {
+  
+  # 1. Check API Key (Exact ORA Logic)
+  if(!key_uploaded()){
+    if(is.null(api_settings()$api_key) || api_settings()$api_key == "") {
+      showModal(modalDialog("Please Upload an API Key", easyClose = TRUE))
+      return()
+    }
+  }
+  
+  # 2. Require Data
+  req(tfcof_data_export())
+  req(inputTFs())
+  
+  start_cell <- input$llm_start_cell_tfcof
+  target_cell <- input$llm_target_cell_tfcof
+  
+  if(is.null(start_cell) || start_cell == "" || is.null(target_cell) || target_cell == "") {
+    showNotification("Please define both Start and Target cells.", type = "warning")
+    return()
+  }
+  
+  # 3. Prepare Data Strings
+  current_cocktail <- paste(inputTFs(), collapse = ", ")
+  
+  df <- tfcof_data_export()
+  
+  # Limit to 30 to prevent timeouts/errors
+  if(nrow(df) > 30) df <- head(df, 30)
+  
+  # Create simple interaction string
+  interactions_str <- paste(
+    paste0(df$TF, " recruits cofactor ", df$TFcof, " (Class: ", df$Class, ")"),
+    collapse = ", "
+  )
+  
+  # 4. Construct Prompt (Using paste0, exactly like ORA)
+  user_prompt <- paste0(
+    "I am a scientist interested in direct reprogramming. ",
+    "I am converting ", start_cell, " to ", target_cell, ". ",
+    "My current TF cocktail is: ", current_cocktail, ". ",
+    "The following TF-Cofactors interact with my TFs: ", interactions_str, ". ",
+    "Reason if any of this co factor could be added to the protocol or even should be knocked down. ",
+    "Return Answer with Markdown Formatting. Keep it concise. Do not ask follow up questions."
+  )
+  
+  # 5. API Call (Exact copy of ORA structure)
+  shinyjs::runjs("$('#llm_response_tfcof').text('Generating response, please wait...');")
+  
+  url <- "https://api.openai.com/v1/chat/completions"
+  
+  data <- jsonlite::toJSON(list(
+    model = api_settings()$preferred_model,
+    messages = list(
+      list(role = "user", content = user_prompt)
+    ),
+    max_completion_tokens = 10000 
+  ), auto_unbox = TRUE)
+  
+  response <- httr::POST(
+    url,
+    httr::add_headers(
+      Authorization = paste("Bearer", api_settings()$api_key),
+      `Content-Type` = "application/json"
+    ),
+    body = data,
+    encode = "json"
+  )
+  
+  # 6. Render Response
+  if (httr::status_code(response) == 200) {
+    content <- httr::content(response, as = "text", encoding = "UTF-8")
+    parsed_content <- jsonlite::fromJSON(content)
+    
+    response_to_display <- parsed_content$choices$message$content
+    
+    output$llm_response_tfcof <- renderUI({
+      div(
+        style = "background-color: #fff; padding: 15px; border: 1px solid #eee; border-radius: 5px; margin-top: 10px;",
+        HTML(markdown::markdownToHTML(text = response_to_display, fragment.only = TRUE))
+      )
+    })
+  } else {
+    response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", httr::status_code(response))
+    output$llm_response_tfcof <- renderUI({
+      HTML(markdown::markdownToHTML(text = response_to_display, fragment.only = TRUE))
+    })
+  }
+})
+
+output$downloadDataTfcof <- downloadHandler(
+  filename = function() {
+    paste("tf_cofactor_interactions_", Sys.Date(), ".csv", sep = "")
+  },
+  content = function(file) {
+    req(tfcof_data_export())
+    # Write the clean data (without HTML tooltips) to CSV
+    write.csv(tfcof_data_export(), file, row.names = FALSE)
+  }
+)

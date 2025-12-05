@@ -91,8 +91,45 @@ tabPanel("Analyze TF Sets",
                   conditionalPanel('output.cond_tfcof == "1"', 
                                    hr(),
                                    hr(),
+                                   div(
+                                     style = "margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 8px;",
+                                     
+                                     # Header
+                                     tags$label("Ask a LLM: Might any of these TF Cofactors be useful to add to my cocktail?", style = "margin-bottom: 10px; font-size: 18px; font-weight: bold;"),
+                                     
+                                     # Flex container for inputs
+                                     div(
+                                       style = "display: flex; align-items: flex-end; gap: 10px;", 
+                                       
+                                       # Start Cell Input
+                                       div(style = "flex-grow: 1;",
+                                           tags$label("From (Start Cell):", style = "font-weight: normal; font-size: 12px; margin-bottom: 2px;"),
+                                           textInput("llm_start_cell_tfcof", label = NULL, placeholder = "e.g. Fibroblasts", width = "100%")
+                                       ),
+                                       
+                                       # Arrow visual
+                                       div(style = "padding-bottom: 10px; font-weight: bold;", HTML("&#8594;")),
+                                       
+                                       # Target Cell Input
+                                       div(style = "flex-grow: 1;",
+                                           tags$label("To (Target Cell):", style = "font-weight: normal; font-size: 12px; margin-bottom: 2px;"),
+                                           textInput("llm_target_cell_tfcof", label = NULL, placeholder = "e.g. Hepatocytes", width = "100%")
+                                       ),
+                                       
+                                       # Button
+                                       div(
+                                         actionButton("submit_prompt_tfcof_btn", "Ask", class = "btn-primary", style = "margin-bottom: 2px;")
+                                       )
+                                     ),
+                                     
+                                     # Response Output
+                                     uiOutput("llm_response_tfcof")
+                                   ),
                                    h3('TF Cofactors', align="center"),
                                    div(class="vw70", uiOutput("carousel_tfcof")),
+                                   div(style = "text-align: center; margin-top: 15px; margin-bottom: 15px;",
+                                       downloadButton('downloadDataTfcof', 'Download Cofactor Table')
+                                   ),
                                    p("Transcription factor cofactors (TcoFs) are proteins that, while not transcription factors themselves, physically interact with transcription factors to modulate gene expression. 
                                      These cofactors are characterized by evidence of involvement in transcriptional regulation and localization within the cell nucleus. 
                                      Based on the strength and type of evidence for these two key characteristics, TcoFs are classified into four distinct confidence categories.
@@ -101,14 +138,85 @@ tabPanel("Analyze TF Sets",
                   conditionalPanel('output.cond_tftf == "1"', 
                                    hr(),
                                    hr(),
+                                   div(
+                                     style = "margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 8px;",
+                                     
+                                     # Header
+                                     tags$label("Ask a LLM: Might any of these interacting TFs be useful to add to my current cocktail to improve conversion efficiency?", style = "margin-bottom: 10px; font-size: 18px; font-weight: bold;"),
+                                     
+                                     # Flex container for inputs
+                                     div(
+                                       style = "display: flex; align-items: flex-end; gap: 10px;", 
+                                       
+                                       # Start Cell Input
+                                       div(style = "flex-grow: 1;",
+                                           tags$label("From (Start Cell):", style = "font-weight: normal; font-size: 12px; margin-bottom: 2px;"),
+                                           textInput("llm_start_cell_tftf", label = NULL, placeholder = "e.g. Fibroblasts", width = "100%")
+                                       ),
+                                       
+                                       # Arrow visual (optional, but looks nice)
+                                       div(style = "padding-bottom: 10px; font-weight: bold;", HTML("&#8594;")),
+                                       
+                                       # Target Cell Input
+                                       div(style = "flex-grow: 1;",
+                                           tags$label("To (Target Cell):", style = "font-weight: normal; font-size: 12px; margin-bottom: 2px;"),
+                                           textInput("llm_target_cell_tftf", label = NULL, placeholder = "e.g. Hepatocytes", width = "100%")
+                                       ),
+                                       
+                                       # Button
+                                       div(
+                                         actionButton("submit_prompt_tftf_btn", "Ask", class = "btn-primary", style = "margin-bottom: 2px;")
+                                       )
+                                     ),
+                                     
+                                     # Response Output
+                                     uiOutput("llm_response_tftf")
+                                   ),
                                    h3('TF-TF Interactions', align="center"),
                                    div(class="vw70", uiOutput("carousel_tftf")),
+                                   div(style = "text-align: center; margin-top: 15px; margin-bottom: 15px;",
+                                       downloadButton('downloadDataTFTF', 'Download TF-TF Data')
+                                   ),
                                    p("TF-TF interactions are based on filtered data from BioGRID, IntAct, and Reactome, focusing exclusively on physical and direct interactions (MI:0915 and MI:0407) to show potential cooperative binding events. 
                                      Clicking on the TF allows you to explore the expression levels of the TF in chosen tissues and can give hints it might be a suitable target.")
                   ),
                   conditionalPanel('output.cond_isoforms == "1"', 
                                    hr(),
                                    hr(),
+                                   div(
+                                     style = "margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 8px;",
+                                     
+                                     # Header
+                                     tags$label("Ask a LLM: Could specific isoforms play a role during the conversion process?", style = "margin-bottom: 10px; font-size: 18px; font-weight: bold;"),
+                                     
+                                     # Flex container for inputs
+                                     div(
+                                       style = "display: flex; align-items: flex-end; gap: 10px;", 
+                                       
+                                       # Start Cell Input
+                                       div(style = "flex-grow: 1;",
+                                           tags$label("From (Start Cell):", style = "font-weight: normal; font-size: 12px; margin-bottom: 2px;"),
+                                           textInput("llm_start_cell_iso", label = NULL, placeholder = "e.g. Fibroblasts", width = "100%")
+                                       ),
+                                       
+                                       # Arrow visual
+                                       div(style = "padding-bottom: 10px; font-weight: bold;", HTML("&#8594;")),
+                                       
+                                       # Target Cell Input
+                                       div(style = "flex-grow: 1;",
+                                           tags$label("To (Target Cell):", style = "font-weight: normal; font-size: 12px; margin-bottom: 2px;"),
+                                           textInput("llm_target_cell_iso", label = NULL, placeholder = "e.g. Hepatocytes", width = "100%")
+                                       ),
+                                       
+                                       # Button
+                                       div(
+                                         actionButton("submit_prompt_iso_btn", "Ask", class = "btn-primary", style = "margin-bottom: 2px;")
+                                       )
+                                     ),
+                                     
+                                     # Response Output
+                                     uiOutput("llm_response_iso")
+                                   ),
                                    h3('Differentiation Potential TF Isoforms', align="center"),
                                    div(class="vw70", plotlyOutput("isoforms_plot")),
                                    p("Transcription factors (TFs) exist in multiple isoforms due to alternative splicing, with approximately 1,800 TF genes producing over 3,500 distinct variants that can differ in DNA binding properties, activator/repressor functions, and dimerization capabilities. 

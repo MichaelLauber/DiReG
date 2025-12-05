@@ -9,6 +9,8 @@ tftf_interaction_mm <- readRDS("data/mouse_tf_tf_interactions.rds") %>% dplyr::s
 
 selectedGeneTFTF <- reactiveVal(NULL)
 
+tftf_data_export <- reactiveVal(NULL)
+
 # Create content for the carousel
 
 folderInfoTFTF <- reactive({
@@ -191,6 +193,16 @@ observeEvent(input$btnTFTF, ({
   }
   
   combined_df <- bind_rows(result_list)
+  
+  if(nrow(combined_df) > 0){
+    clean_export <- combined_df %>% 
+      dplyr::select(TF_symbol_1, TF_symbol_2, detection_method, pub_id) %>%
+      dplyr::rename(TF_Input = TF_symbol_1, TF_Interactor = TF_symbol_2)
+    
+    tftf_data_export(clean_export)
+  } else {
+    tftf_data_export(NULL)
+  }
   
   
   # If there's nothing to show, end here
@@ -452,3 +464,102 @@ observeEvent(input$okTissueTFTF, {
   }
 })
 
+observeEvent(input$submit_prompt_tftf_btn, {
+  
+  # 1. Check API Key (Same logic as ORA)
+  if(!key_uploaded()){
+    # Fallback check: if api_settings has a key, we proceed. 
+    # If not, we show the modal.
+    if(is.null(api_settings()$api_key) || api_settings()$api_key == "") {
+      showModal(modalDialog("Please Upload an API Key", easyClose = TRUE))
+      return()
+    }
+  }
+  
+  # 2. Require Data
+  req(tftf_data_export())
+  req(inputTFs())
+  
+  start_cell <- input$llm_start_cell_tftf
+  target_cell <- input$llm_target_cell_tftf
+  
+  if(is.null(start_cell) || start_cell == "" || is.null(target_cell) || target_cell == "") {
+    showNotification("Please define both Start and Target cells.", type = "warning")
+    return()
+  }
+  
+  # 3. Prepare Data Strings
+  current_cocktail <- paste(inputTFs(), collapse = ", ")
+  
+  df <- tftf_data_export()
+  # Limit to 30 to stay safe
+  if(nrow(df) > 30) df <- head(df, 30)
+  
+  interactions_str <- paste(
+    paste0(df$TF_Input, " interacts with ", df$TF_Interactor),
+    collapse = ", "
+  )
+  
+  # 4. Construct Prompt (Using paste0, exactly like your ORA example)
+  user_prompt <- paste0(
+    "I am a scientist interested in direct reprogramming. ",
+    "I am converting ", start_cell, " to ", target_cell, ". ",
+    "My current TF cocktail is: ", current_cocktail, ". ",
+    "I found these protein-protein interactions: ", interactions_str, ". ",
+    "Based on this, which of these interacting partners might be useful to ADD to the cocktail to improve specifity for ", target_cell, "? ",
+    "Return Answer with Markdown Formatting. Keep it concise. Do not ask follow up questions."
+  )
+  
+  # 5. API Call (Exact copy of your ORA code structure)
+  shinyjs::runjs("$('#llm_response_tftf').text('Generating response, please wait...');")
+  
+  url <- "https://api.openai.com/v1/chat/completions"
+  
+  data <- jsonlite::toJSON(list(
+    model = api_settings()$preferred_model,
+    messages = list(
+      list(role = "user", content = user_prompt)
+    ),
+    max_completion_tokens = 10000 
+  ), auto_unbox = TRUE)
+  
+  response <- httr::POST(
+    url,
+    httr::add_headers(
+      Authorization = paste("Bearer", api_settings()$api_key),
+      `Content-Type` = "application/json"
+    ),
+    body = data,
+    encode = "json"
+  )
+  
+  # 6. Render Response
+  if (httr::status_code(response) == 200) {
+    content <- httr::content(response, as = "text", encoding = "UTF-8")
+    parsed_content <- jsonlite::fromJSON(content)
+    
+    response_to_display <- parsed_content$choices$message$content
+    
+    output$llm_response_tftf <- renderUI({
+      div(
+        style = "background-color: #fff; padding: 15px; border: 1px solid #eee; border-radius: 5px; margin-top: 10px;",
+        HTML(markdown::markdownToHTML(text = response_to_display, fragment.only = TRUE))
+      )
+    })
+  } else {
+    response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", httr::status_code(response))
+    output$llm_response_tftf <- renderUI({
+      HTML(markdown::markdownToHTML(text = response_to_display, fragment.only = TRUE))
+    })
+  }
+})
+
+output$downloadDataTFTF <- downloadHandler(
+  filename = function() {
+    paste("tf_tf_interactions_", Sys.Date(), ".csv", sep = "")
+  },
+  content = function(file) {
+    req(tftf_data_export())
+    write.csv(tftf_data_export(), file, row.names = FALSE)
+  }
+)
