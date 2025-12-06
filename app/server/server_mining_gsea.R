@@ -13,9 +13,9 @@ loadGeneSets <- function(organism) {
   if (organism == "human") {
     if (is.null(cachedGeneSets$human)) {
       humanFiles <- list(
-        H_Hallmark_Genesets  = file.path("data", "h.all.v2023.1.Hs.symbols.gmt"),
+        #H_Hallmark_Genesets  = file.path("data", "h.all.v2023.1.Hs.symbols.gmt"),
         C2_Curated_Genesets = file.path("data", "c2.cp.v2023.1.Hs.symbols.gmt"),
-        C5_Ontology_Genesets  = file.path("data", "c5.go.v2023.1.Hs.symbols.gmt"),
+        #C5_Ontology_Genesets  = file.path("data", "c5.go.v2023.1.Hs.symbols.gmt"),
         C8_CellType_signature_Genesets = file.path("data", "c8.all.v2023.1.Hs.symbols.gmt")
       )
       cachedGeneSets$human <- lapply(humanFiles, fgsea::gmtPathways)
@@ -24,9 +24,9 @@ loadGeneSets <- function(organism) {
   } else {
     if (is.null(cachedGeneSets$murine)) {
       murineFiles <- list(
-        M_Hallmark_Genesets = file.path("data", "mh.all.v2023.1.Mm.symbols.gmt"),
+        #M_Hallmark_Genesets = file.path("data", "mh.all.v2023.1.Mm.symbols.gmt"),
         M2_Curated_Genesets = file.path("data", "m2.cp.v2023.1.Mm.symbols.gmt"),
-        M5_Ontology_Genesets = file.path("data", "m5.go.v2023.1.Mm.symbols.gmt"),
+        #M5_Ontology_Genesets = file.path("data", "m5.go.v2023.1.Mm.symbols.gmt"),
         M8_CellType_signature_Genesets = file.path("data", "m8.all.v2023.1.Mm.symbols.gmt")
       )
       cachedGeneSets$murine <- lapply(murineFiles, fgsea::gmtPathways)
@@ -55,7 +55,10 @@ observeEvent(input$btnGSEA, {
   notification <- showNotification(glue::glue("Calculating GSEA. This can take up to a few minutes"), type = "message", duration = NULL, closeButton = TRUE)
   on.exit(removeNotification(notification), add = TRUE)
   
-  names_migsig_sets <- c("Hallmark Gene Sets", "Canonical Pathways Gene Sets", "Gene Ontology Gene Sets", "Cell Type Signature Gene Sets")
+  names_migsig_sets <- c(#"Hallmark Gene Sets", 
+                         "Canonical Pathways Gene Sets", 
+                         #"Gene Ontology Gene Sets", 
+                         "Cell Type Signature Gene Sets")
   
   
   organism <- ifelse(input$radioOrgNetwork == "human", "human", "murine")
@@ -221,7 +224,10 @@ observeEvent(input$submit_prompt_gsea_btn, {
                         input$user_prompt_gsea, 
                         ". These are the enriched genesets: ", 
                         paste(cache_gsea$comb_gsea_res$pathway, collapse = ", "),
-                        ". Provide the output in HTML Formatting. It will be displayed within an web-application."
+                        ". 
+                        Provide the output in HTML Formatting. 
+                        It will be displayed within an web-application. 
+                        Keep it concise. Do not ask follow up questions."
                         )
   output$llm_response_gsea <- renderText("Generating response, please wait...")
   shinyjs::runjs("$('#llm_response_gsea').text('Generating response, please wait...');")
@@ -229,7 +235,7 @@ observeEvent(input$submit_prompt_gsea_btn, {
   ####Using openaiAPI
   
   data <- jsonlite::toJSON(list(
-    model = api_settings()$preferred_model,  # Specify the model you want to use (e.g., "gpt-3.5-turbo" or "davinci")
+    model = api_settings()$preferred_model,  
     messages = list(
       list(role = "user", content = user_prompt)
     ),
@@ -257,8 +263,8 @@ observeEvent(input$submit_prompt_gsea_btn, {
 
   } else {
     # Print an error message if the request fails
-    cat("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
-    response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", status_code(response), "\n")
+    cat("Error: Unable to retrieve a response. Status code:", httr::status_code(response), "\n")
+    response_to_display <- paste0("Error: Unable to retrieve a response. Status code:", httr::status_code(response), "\n")
   }
   
   #####
