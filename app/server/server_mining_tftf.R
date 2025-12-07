@@ -194,6 +194,9 @@ observeEvent(input$btnTFTF, ({
   
   combined_df <- bind_rows(result_list)
   
+  combined_df <- combined_df %>% 
+    dplyr::filter(TF_symbol_1 != TF_symbol_2 | is.na(TF_symbol_2))
+  
   if(nrow(combined_df) > 0){
     clean_export <- combined_df %>% 
       dplyr::select(TF_symbol_1, TF_symbol_2, detection_method, pub_id) %>%
